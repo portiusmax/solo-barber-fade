@@ -1,7 +1,7 @@
 import { config, fields, singleton, collection } from '@keystatic/core';
 
 const storage =
-  process.env.VERCEL
+  !import.meta.env.DEV
     ? { kind: 'cloud' as const }
     : { kind: 'local' as const };
 
