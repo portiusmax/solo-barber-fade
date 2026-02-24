@@ -1,0 +1,7 @@
+name: Beard Trim & Shape
+price: '$20'
+duration: '20 min'
+category: beard
+image: /images/barbershop-interior.jpg
+featured: true
+sortOrder: 3

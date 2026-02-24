@@ -1,0 +1,233 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHeading from '@/components/common/SectionHeading.astro';
+import ServiceList from '@/components/services/ServiceList.astro';
+import { getServices } from '@/lib/keystatic';
+
+const services = await getServices();
+
+const categoryOrder = ['haircuts', 'beard', 'treatments', 'packages', 'other'];
+const categoryLabels: Record<string, string> = {
+  haircuts: 'Haircuts',
+  beard: 'Beard',
+  treatments: 'Treatments',
+  packages: 'Packages',
+  other: 'Other',
+};
+
+// Collect active categories for the quick-nav
+const activeCategories = categoryOrder.filter((cat) =>
+  services.some((s) => (s.category || 'other') === cat)
+);
+---
+
+<BaseLayout title="Services & Pricing">
+  <!-- Page header -->
+  <section class="services-hero section-padding" aria-labelledby="services-page-heading">
+    <div class="container">
+      <SectionHeading tag="h1" id="services-page-heading">
+        Services & Pricing
+      </SectionHeading>
+      <p class="services-subtitle reveal">
+        Quality cuts and grooming tailored to your style. Browse our full menu below.
+      </p>
+
+      <!-- Category quick-nav -->
+      {activeCategories.length > 1 && (
+        <nav class="category-nav reveal" aria-label="Jump to service category">
+          {activeCategories.map((cat) => (
+            <a href={`#category-${cat}`} class="category-nav-link">
+              {categoryLabels[cat] || cat}
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <!-- Service list -->
+  <section class="services-body section-padding" aria-label="Full service list">
+    <div class="container">
+      {services.length > 0 ? (
+        <ServiceList services={services} />
+      ) : (
+        <p class="no-services reveal">Services coming soon. Check back shortly.</p>
+      )}
+    </div>
+  </section>
+
+  <!-- Bottom CTA -->
+  <section class="services-cta section-padding" aria-label="Book an appointment">
+    <div class="cta-inner container reveal">
+      <h2 class="cta-heading">Ready to Book?</h2>
+      <p class="cta-text">
+        Choose your service and reserve your spot today.
+      </p>
+      <a href="/booking" class="btn btn-primary cta-btn">Book Your Appointment</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ─── Page header ─── */
+  .services-hero {
+    background-color: var(--color-bg-alt);
+    text-align: center;
+    padding-top: 8rem;
+  }
+
+  .services-subtitle {
+    color: var(--color-text-muted);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    max-width: 560px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+
+  /* ─── Category quick-nav ─── */
+  .category-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.625rem;
+    margin-top: 0.5rem;
+  }
+
+  .category-nav-link {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+
+  .category-nav-link:hover {
+    color: white;
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* ─── Service body ─── */
+  .services-body {
+    background-color: var(--color-bg);
+  }
+
+  .no-services {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+    padding: 4rem 0;
+  }
+
+  /* ─── Bottom CTA ─── */
+  .services-cta {
+    background-color: var(--color-accent);
+    text-align: center;
+  }
+
+  .cta-heading {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .cta-text {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.125rem;
+    max-width: 560px;
+    margin: 0 auto 2rem;
+  }
+
+  .cta-btn {
+    background-color: white;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .cta-btn:hover {
+    background-color: var(--color-heading);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* ─── Theme: Fade ─── */
+  :global([data-theme="fade"]) .services-hero {
+    background-color: var(--color-bg);
+  }
+
+  :global([data-theme="fade"]) .category-nav-link {
+    background-color: transparent;
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
+
+  :global([data-theme="fade"]) .category-nav-link:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background-color: rgba(200, 160, 80, 0.08);
+  }
+
+  :global([data-theme="fade"]) .services-cta {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  :global([data-theme="fade"]) .cta-heading {
+    color: var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .cta-text {
+    color: var(--color-text);
+  }
+
+  :global([data-theme="fade"]) .cta-btn {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  :global([data-theme="fade"]) .cta-btn:hover {
+    box-shadow: 0 0 30px rgba(200, 160, 80, 0.3);
+  }
+
+  /* ─── Theme: Chop ─── */
+  :global([data-theme="chop"]) .services-hero {
+    background-color: var(--color-bg-alt);
+  }
+
+  :global([data-theme="chop"]) .cta-heading {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  :global([data-theme="chop"]) .category-nav-link {
+    border-radius: 0;
+    border-width: 2px;
+    border-color: var(--color-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.8125rem;
+  }
+
+  :global([data-theme="chop"]) .category-nav-link:hover {
+    background-color: var(--color-heading);
+    border-color: var(--color-heading);
+    color: white;
+  }
+
+  /* ─── Theme: Clean ─── */
+  :global([data-theme="clean"]) .category-nav-link {
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    border-color: transparent;
+  }
+
+  :global([data-theme="clean"]) .category-nav-link:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-1px);
+  }
+</style>

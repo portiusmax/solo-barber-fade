@@ -1,0 +1,161 @@
+---
+import SectionHeading from '@/components/common/SectionHeading.astro';
+import RichText from '@/components/common/RichText.astro';
+
+interface Props {
+  heading?: string;
+  text?: any;
+  image?: string | null;
+}
+
+const { heading, text, image } = Astro.props;
+
+const hasContent = heading || text;
+---
+
+{hasContent && (
+  <section class="personal section-padding" aria-labelledby="personal-heading">
+    <div class="personal-inner container">
+      {image && (
+        <div class="personal-image reveal">
+          <img
+            src={image}
+            alt={heading || 'Outside the chair'}
+            class="personal-photo"
+            loading="lazy"
+          />
+        </div>
+      )}
+
+      <div class="personal-content reveal">
+        {heading && (
+          <SectionHeading align="left" id="personal-heading">
+            {heading}
+          </SectionHeading>
+        )}
+        {text && <RichText document={text} class="personal-text" />}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .personal {
+    background-color: var(--color-bg);
+  }
+
+  .personal-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .personal-inner {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .personal-inner {
+      gap: 5rem;
+    }
+  }
+
+  .personal-image {
+    order: 1;
+  }
+
+  @media (min-width: 768px) {
+    .personal-image {
+      order: 0;
+    }
+  }
+
+  .personal-photo {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    display: block;
+  }
+
+  .personal-content {
+    order: 0;
+  }
+
+  @media (min-width: 768px) {
+    .personal-content {
+      order: 1;
+    }
+  }
+
+  .personal-text {
+    color: var(--color-text);
+    font-size: 1.0625rem;
+  }
+
+  /* ═══ FADE: Gold border on image, accent line on content ═══ */
+  :global([data-theme="fade"]) .personal-photo {
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+  }
+
+  :global([data-theme="fade"]) .personal-image {
+    position: relative;
+  }
+
+  :global([data-theme="fade"]) .personal-image::before,
+  :global([data-theme="fade"]) .personal-image::after {
+    content: '';
+    position: absolute;
+    width: 2rem;
+    height: 2rem;
+    border-color: var(--color-accent);
+    border-style: solid;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  :global([data-theme="fade"]) .personal-image::before {
+    top: -0.5rem;
+    right: -0.5rem;
+    border-width: 1px 1px 0 0;
+  }
+
+  :global([data-theme="fade"]) .personal-image::after {
+    bottom: -0.5rem;
+    left: -0.5rem;
+    border-width: 0 0 1px 1px;
+  }
+
+  :global([data-theme="fade"]) .personal-content {
+    border-left: 1px solid rgba(200, 160, 80, 0.2);
+    padding-left: 2rem;
+  }
+
+  /* ═══ CLEAN: Rounded image, soft shadow ═══ */
+  :global([data-theme="clean"]) .personal-photo {
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ═══ CHOP: Grayscale image, thick border on content ═══ */
+  :global([data-theme="chop"]) .personal-photo {
+    border-radius: 0;
+    filter: grayscale(100%);
+    transition: filter 0.4s ease;
+  }
+
+  :global([data-theme="chop"]) .personal-image:hover .personal-photo {
+    filter: grayscale(0%);
+  }
+
+  :global([data-theme="chop"]) .personal-content {
+    border-left: 4px solid var(--color-accent);
+    padding-left: 2rem;
+  }
+</style>

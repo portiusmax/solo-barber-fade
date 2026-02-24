@@ -1,0 +1,7 @@
+name: Haircut & Beard Combo
+price: '$50'
+duration: '1 hour'
+category: packages
+image: /images/barber-at-work.jpg
+featured: false
+sortOrder: 5

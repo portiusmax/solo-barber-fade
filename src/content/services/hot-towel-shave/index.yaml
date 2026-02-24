@@ -1,0 +1,7 @@
+name: Hot Towel Shave
+price: '$30'
+duration: '30 min'
+category: beard
+image: /images/barber-portrait.jpg
+featured: false
+sortOrder: 4

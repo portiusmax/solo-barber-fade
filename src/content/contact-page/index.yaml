@@ -1,0 +1,3 @@
+pageHeading: Get in Touch
+showContactForm: true
+formspreeEndpoint: 'https://formspree.io/f/example'

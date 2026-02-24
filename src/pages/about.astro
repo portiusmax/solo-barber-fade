@@ -1,0 +1,110 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProfileSection from '@/components/about/ProfileSection.astro';
+import Specialties from '@/components/about/Specialties.astro';
+import PersonalSection from '@/components/about/PersonalSection.astro';
+import { getAboutPage } from '@/lib/keystatic';
+
+const aboutPage = await getAboutPage();
+
+const bio = aboutPage?.bio ? await aboutPage.bio() : null;
+const certifications = aboutPage?.certifications ? await aboutPage.certifications() : null;
+const personalText = aboutPage?.personalText ? await aboutPage.personalText() : null;
+---
+
+<BaseLayout title={aboutPage?.pageHeading ? `${aboutPage.pageHeading} | About` : 'About'}>
+  <ProfileSection
+    heading={aboutPage?.pageHeading}
+    bio={bio}
+    profilePhoto={aboutPage?.profilePhoto}
+    secondaryPhoto={aboutPage?.secondaryPhoto}
+    yearsExperience={aboutPage?.yearsExperience}
+    certifications={certifications}
+  />
+
+  <Specialties
+    specialties={aboutPage?.specialties}
+    yearsExperience={aboutPage?.yearsExperience}
+  />
+
+  <PersonalSection
+    heading={aboutPage?.personalHeading}
+    text={personalText}
+    image={aboutPage?.personalImage}
+  />
+
+  <section class="about-cta section-padding" aria-label="Book an appointment">
+    <div class="container cta-wrapper reveal">
+      <h2 class="cta-heading">Ready to Experience the Difference?</h2>
+      <p class="cta-text">
+        Book your appointment today and let's craft your perfect look.
+      </p>
+      <a href="/booking" class="btn btn-primary cta-btn">Book Your Appointment</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-cta {
+    background-color: var(--color-accent);
+    text-align: center;
+  }
+
+  .cta-wrapper {
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  .cta-heading {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .cta-text {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+  }
+
+  .cta-btn {
+    background-color: white;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .cta-btn:hover {
+    background-color: var(--color-heading);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* ─── Theme: Fade ─── */
+  :global([data-theme="fade"]) .about-cta {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  :global([data-theme="fade"]) .cta-heading {
+    color: var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .cta-text {
+    color: var(--color-text);
+  }
+
+  :global([data-theme="fade"]) .cta-btn {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  :global([data-theme="fade"]) .cta-btn:hover {
+    box-shadow: 0 0 30px rgba(200, 160, 80, 0.3);
+  }
+
+  /* ─── Theme: Chop ─── */
+  :global([data-theme="chop"]) .cta-heading {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+</style>

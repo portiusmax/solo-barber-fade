@@ -1,0 +1,134 @@
+---
+import { getSiteSettings, getSeo } from '@/lib/keystatic';
+import Header from '@/components/common/Header.astro';
+import Footer from '@/components/common/Footer.astro';
+import ScrollToTop from '@/components/common/ScrollToTop.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const settings = await getSiteSettings();
+const seo = await getSeo();
+
+const {
+  title = seo?.metaTitle || settings?.siteTitle || 'Barber',
+  description = seo?.metaDescription || '',
+  ogImage = seo?.ogImage || '',
+} = Astro.props;
+
+const theme = settings?.theme || 'fade';
+const accentColor = settings?.accentColor;
+const gaId = seo?.gaId;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+
+// Build JSON-LD structured data
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': seo?.businessType || 'BarberShop',
+  name: seo?.businessName || settings?.siteTitle || '',
+  url: Astro.site?.toString() || '',
+  telephone: settings?.phone || '',
+  email: settings?.email || '',
+  priceRange: seo?.priceRange || '',
+  ...(seo?.geoLat && seo?.geoLng
+    ? {
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: seo.geoLat,
+          longitude: seo.geoLng,
+        },
+      }
+    : {}),
+  ...(seo?.serviceArea ? { areaServed: seo.serviceArea } : {}),
+  ...(ogImage ? { image: ogImage } : {}),
+};
+---
+
+<!doctype html>
+<html lang="en" data-theme={theme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:url" content={canonicalUrl} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+    <!-- Favicon -->
+    {settings?.favicon ? (
+      <link rel="icon" href={settings.favicon} />
+    ) : (
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    )}
+
+    <!-- Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+    <!-- Google Analytics -->
+    {gaId && (
+      <Fragment>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
+        <script set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${gaId}');`} />
+      </Fragment>
+    )}
+
+    <!-- Accent color override -->
+    {accentColor && (
+      <style set:html={`
+        :root {
+          --color-accent: ${accentColor};
+          --color-accent-hover: ${accentColor};
+        }
+      `} />
+    )}
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+    <ScrollToTop />
+
+    <!-- Scroll reveal observer -->
+    <script>
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      );
+
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+      // Re-observe after view transitions
+      document.addEventListener('astro:after-swap', () => {
+        document.querySelectorAll('.reveal:not(.visible)').forEach((el) => observer.observe(el));
+      });
+    </script>
+  </body>
+</html>

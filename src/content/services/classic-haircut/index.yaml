@@ -1,0 +1,7 @@
+name: Classic Haircut
+price: '$35'
+duration: '45 min'
+category: haircuts
+image: /images/barber-portrait.jpg
+featured: true
+sortOrder: 1

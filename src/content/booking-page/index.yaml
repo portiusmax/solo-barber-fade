@@ -1,0 +1,6 @@
+pageHeading: Book an Appointment
+bookingMethod: external_link
+embedCode: ''
+externalBookingUrl: https://booksy.com
+externalBookingButtonText: Book on Booksy
+showWalkInInfo: true

@@ -1,0 +1,29 @@
+pageHeading: Find Me
+locations:
+  - shopName: 'Ace Cuts Barbershop'
+    address1: '1847 N. Milwaukee Ave'
+    address2: 'Suite 2'
+    city: Chicago
+    state: IL
+    zip: '60647'
+    mapEmbedUrl: https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2969.123456!2d-87.685!3d41.912!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDU0JzQzLjIiTiA4N8KwNDEnMDYuMCJX!5e0!3m2!1sen!2sus!4v1600000000000!5m2!1sen!2sus
+    daysAvailable:
+      - tue
+      - wed
+      - thu
+      - fri
+    hours: '10am - 7pm'
+    notes: ''
+  - shopName: 'The Gentlemen''s Quarter'
+    address1: '3225 S. State St'
+    address2: ''
+    city: Chicago
+    state: IL
+    zip: '60616'
+    mapEmbedUrl: https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2970.654321!2d-87.626!3d41.834!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDUwJzAyLjQiTiA4N8KwMzcnMzMuNiJX!5e0!3m2!1sen!2sus!4v1600000000000!5m2!1sen!2sus
+    daysAvailable:
+      - sat
+    hours: '9am - 5pm'
+    notes: 'By appointment only. Book ahead for Saturday slots.'
+showMobileServices: false
+parkingInstructions: 'Street parking available on Milwaukee Ave. Metered spots free after 9pm and on Sundays.'

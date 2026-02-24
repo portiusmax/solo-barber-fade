@@ -1,0 +1,149 @@
+---
+import SectionHeading from '@/components/common/SectionHeading.astro';
+
+interface Props {
+  specialties?: string[];
+  yearsExperience?: number | null;
+}
+
+const { specialties = [], yearsExperience } = Astro.props;
+
+const hasContent = specialties.length > 0;
+---
+
+{hasContent && (
+  <section class="specialties section-padding" aria-labelledby="specialties-heading">
+    <div class="container">
+      <div class="specialties-header reveal">
+        <SectionHeading id="specialties-heading">What I Specialize In</SectionHeading>
+        {yearsExperience && (
+          <p class="specialties-subtitle">
+            Honed over <strong>{yearsExperience}+ years</strong> of dedicated craft
+          </p>
+        )}
+      </div>
+
+      <div class="specialties-grid reveal">
+        {specialties.map((specialty, index) => (
+          <div class="specialty-tag" style={`--tag-index: ${index}`}>
+            <svg
+              class="tag-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            <span>{specialty}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .specialties {
+    background-color: var(--color-bg-alt);
+  }
+
+  .specialties-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .specialties-subtitle {
+    color: var(--color-text-muted);
+    font-size: 1.0625rem;
+    margin-top: 0.5rem;
+  }
+
+  .specialties-subtitle strong {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .specialties-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.875rem;
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .specialty-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-surface);
+    color: var(--color-heading);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: all var(--transition);
+    cursor: default;
+  }
+
+  .specialty-tag:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .tag-icon {
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  /* ─── Theme: Fade ─── */
+  :global([data-theme="fade"]) .specialty-tag {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+  }
+
+  :global([data-theme="fade"]) .specialty-tag:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(200, 160, 80, 0.1);
+  }
+
+  /* ─── Theme: Chop ─── */
+  :global([data-theme="chop"]) .specialty-tag {
+    border-radius: 0;
+    border-width: 2px;
+    border-color: var(--color-heading);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 0.875rem;
+  }
+
+  :global([data-theme="chop"]) .specialty-tag:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+  }
+
+  :global([data-theme="chop"]) .specialty-tag:hover .tag-icon {
+    color: white;
+  }
+
+  /* ─── Theme: Clean ─── */
+  :global([data-theme="clean"]) .specialty-tag {
+    border-color: transparent;
+    box-shadow: var(--shadow);
+    border-radius: var(--radius-lg);
+  }
+
+  :global([data-theme="clean"]) .specialty-tag:hover {
+    box-shadow: var(--shadow-lg);
+  }
+</style>

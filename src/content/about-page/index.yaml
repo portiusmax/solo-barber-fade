@@ -1,0 +1,13 @@
+pageHeading: About Me
+profilePhoto: /images/barber-portrait.jpg
+secondaryPhoto: /images/barber-at-work.jpg
+yearsExperience: 8
+specialties:
+  - Skin Fades
+  - Beard Sculpting
+  - Hot Towel Shaves
+  - Textured Crops
+  - Afro Styling
+  - Hair Design
+personalHeading: Outside the Chair
+personalImage: /images/barbershop-interior.jpg

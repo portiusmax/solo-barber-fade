@@ -1,0 +1,219 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHeading from '@/components/common/SectionHeading.astro';
+import GalleryGrid from '@/components/portfolio/GalleryGrid.astro';
+import Lightbox from '@/components/portfolio/Lightbox.astro';
+import { getPortfolio } from '@/lib/keystatic';
+
+const items = await getPortfolio();
+
+// Extract unique category tags for filter buttons
+const categories = [...new Set(items.map((item) => item.categoryTag).filter(Boolean))] as string[];
+---
+
+<BaseLayout title="Portfolio" description="Browse our portfolio of haircuts, fades, beard work, and more.">
+  <section class="portfolio-hero section-padding" aria-labelledby="portfolio-heading">
+    <div class="container">
+      <SectionHeading tag="h1" id="portfolio-heading">Portfolio</SectionHeading>
+      <p class="portfolio-subtitle reveal">
+        A showcase of precision cuts, clean fades, and signature styles.
+      </p>
+
+      {categories.length > 0 && (
+        <nav class="filter-bar reveal" aria-label="Filter portfolio by category">
+          <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+          {categories.map((cat) => (
+            <button class="filter-btn" data-filter={cat} aria-pressed="false">{cat}</button>
+          ))}
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <section class="portfolio-gallery section-padding" aria-label="Portfolio gallery">
+    <div class="container">
+      <GalleryGrid items={items} />
+    </div>
+  </section>
+
+  <section class="portfolio-cta section-padding" aria-label="Book an appointment">
+    <div class="container reveal">
+      <h2 class="cta-heading">Like What You See?</h2>
+      <p class="cta-text">Book your appointment and let's create your next look.</p>
+      <a href="/booking" class="btn btn-primary">Book Your Appointment</a>
+    </div>
+  </section>
+
+  <Lightbox items={items} />
+</BaseLayout>
+
+<style>
+  .portfolio-hero {
+    background-color: var(--color-bg-alt);
+    padding-bottom: 2rem;
+    text-align: center;
+  }
+
+  .portfolio-subtitle {
+    color: var(--color-text-muted);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    max-width: 560px;
+    margin: 0.5rem auto 2.5rem;
+    line-height: 1.6;
+  }
+
+  /* ─── Filter Bar ─── */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .filter-btn {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius);
+    background-color: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+    line-height: 1;
+    font-family: var(--font-body);
+  }
+
+  .filter-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .filter-btn.active {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+  }
+
+  /* ─── Gallery Section ─── */
+  .portfolio-gallery {
+    background-color: var(--color-bg);
+    padding-top: 2rem;
+  }
+
+  /* ─── CTA ─── */
+  .portfolio-cta {
+    background-color: var(--color-accent);
+    text-align: center;
+  }
+
+  .cta-heading {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .cta-text {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.125rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+  }
+
+  .portfolio-cta .btn-primary {
+    background-color: white;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .portfolio-cta .btn-primary:hover {
+    background-color: var(--color-heading);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* ─── Theme: Fade ─── */
+  :global([data-theme="fade"]) .portfolio-cta {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  :global([data-theme="fade"]) .cta-heading {
+    color: var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .cta-text {
+    color: var(--color-text);
+  }
+
+  :global([data-theme="fade"]) .portfolio-cta .btn-primary {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  :global([data-theme="fade"]) .portfolio-cta .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(200, 160, 80, 0.3);
+  }
+
+  :global([data-theme="fade"]) .filter-btn.active {
+    box-shadow: 0 0 14px rgba(200, 160, 80, 0.25);
+  }
+
+  /* ─── Theme: Chop ─── */
+  :global([data-theme="chop"]) .filter-btn {
+    border-radius: 0;
+    border-width: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.8125rem;
+  }
+
+  :global([data-theme="chop"]) .cta-heading {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+</style>
+
+<script>
+  function initFilters() {
+    const filterButtons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+    const galleryItems = document.querySelectorAll<HTMLElement>('[data-category]');
+
+    if (filterButtons.length === 0 || galleryItems.length === 0) return;
+
+    filterButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.filter;
+
+        // Update active button
+        filterButtons.forEach((b) => {
+          b.classList.remove('active');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
+
+        // Filter gallery items
+        galleryItems.forEach((item) => {
+          const category = item.dataset.category;
+          const shouldShow = filter === 'all' || category === filter;
+
+          if (shouldShow) {
+            item.style.display = '';
+            item.removeAttribute('hidden');
+          } else {
+            item.style.display = 'none';
+            item.setAttribute('hidden', '');
+          }
+        });
+      });
+    });
+  }
+
+  // Run on initial load
+  initFilters();
+
+  // Re-initialize after Astro view transitions
+  document.addEventListener('astro:after-swap', initFilters);
+</script>

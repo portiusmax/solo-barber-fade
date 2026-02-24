@@ -1,0 +1,16 @@
+---
+import { DocumentRenderer } from '@keystatic/core/renderer';
+
+interface Props {
+  document: any;
+  class?: string;
+}
+
+const { document, class: className = '' } = Astro.props;
+---
+
+{document && (
+  <div class:list={['prose', className]}>
+    <DocumentRenderer document={document} />
+  </div>
+)}

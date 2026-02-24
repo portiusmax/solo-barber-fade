@@ -1,0 +1,79 @@
+---
+interface Props {
+  tag?: 'h1' | 'h2' | 'h3';
+  align?: 'left' | 'center';
+  class?: string;
+}
+
+const { tag: Tag = 'h2', align = 'center', class: className = '' } = Astro.props;
+---
+
+<Tag
+  class:list={[
+    'section-heading',
+    align === 'center' && 'text-center',
+    className,
+  ]}
+>
+  <slot />
+</Tag>
+
+<style>
+  .section-heading {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    margin-bottom: 1rem;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  /* ═══ FADE: thin gold underline accent ═══ */
+  :global([data-theme="fade"]) .section-heading {
+    position: relative;
+    padding-bottom: 1rem;
+  }
+
+  :global([data-theme="fade"]) .section-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 3rem;
+    height: 1px;
+    background-color: var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .section-heading.text-center::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ═══ CLEAN: centered, no decoration, softer size ═══ */
+  :global([data-theme="clean"]) .section-heading {
+    font-size: clamp(1.625rem, 3.5vw, 2.5rem);
+  }
+
+  /* ═══ CHOP: thick accent underline, tighter tracking ═══ */
+  :global([data-theme="chop"]) .section-heading {
+    position: relative;
+    padding-bottom: 1.25rem;
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    letter-spacing: -0.03em;
+  }
+
+  :global([data-theme="chop"]) .section-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 4rem;
+    height: 4px;
+    background-color: var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .section-heading.text-center::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+</style>

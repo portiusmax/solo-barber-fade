@@ -1,0 +1,75 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/home/Hero.astro';
+import Intro from '@/components/home/Intro.astro';
+import FeaturedServices from '@/components/home/FeaturedServices.astro';
+import FeaturedWork from '@/components/home/FeaturedWork.astro';
+import Testimonials from '@/components/home/Testimonials.astro';
+import CtaBanner from '@/components/home/CtaBanner.astro';
+import {
+  getHomepage,
+  getFeaturedServices,
+  getFeaturedPortfolio,
+  getFeaturedTestimonials,
+} from '@/lib/keystatic';
+
+const homepage = await getHomepage();
+
+const introDocument = homepage?.introText ? await homepage.introText() : null;
+
+const featuredServices = homepage?.showFeaturedServices
+  ? await getFeaturedServices(homepage.featuredServicesCount || 3)
+  : [];
+
+const featuredWork = homepage?.showFeaturedWork
+  ? await getFeaturedPortfolio(homepage.featuredWorkCount || 6)
+  : [];
+
+const testimonials = homepage?.showTestimonials
+  ? await getFeaturedTestimonials()
+  : [];
+---
+
+<BaseLayout>
+  <Hero
+    heading={homepage?.heroHeading}
+    subheading={homepage?.heroSubheading}
+    ctaText={homepage?.heroCtaText}
+    ctaLink={homepage?.heroCtaLink}
+    backgroundImage={homepage?.heroImage}
+  />
+
+  <Intro
+    heading={homepage?.introHeading}
+    text={introDocument}
+    image={homepage?.introImage}
+  />
+
+  {homepage?.showFeaturedServices && featuredServices.length > 0 && (
+    <FeaturedServices
+      heading={homepage?.featuredServicesHeading}
+      services={featuredServices}
+    />
+  )}
+
+  {homepage?.showFeaturedWork && featuredWork.length > 0 && (
+    <FeaturedWork
+      heading={homepage?.featuredWorkHeading}
+      items={featuredWork}
+    />
+  )}
+
+  {homepage?.showTestimonials && testimonials.length > 0 && (
+    <Testimonials
+      heading={homepage?.testimonialsHeading}
+      testimonials={testimonials}
+    />
+  )}
+
+  <CtaBanner
+    heading={homepage?.ctaBannerHeading}
+    text={homepage?.ctaBannerText}
+    buttonText={homepage?.ctaBannerButtonText}
+    buttonLink={homepage?.ctaBannerButtonLink}
+  />
+</BaseLayout>

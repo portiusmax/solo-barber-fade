@@ -1,0 +1,210 @@
+---
+import SectionHeading from '@/components/common/SectionHeading.astro';
+
+interface Service {
+  slug: string;
+  name: { value?: string } | string;
+  price?: string;
+  duration?: string;
+  description?: any;
+  image?: string | null;
+}
+
+interface Props {
+  heading?: string;
+  services: Service[];
+}
+
+const { heading = 'Services', services } = Astro.props;
+
+function getServiceName(service: Service): string {
+  if (typeof service.name === 'string') return service.name;
+  return service.name?.value || service.slug;
+}
+---
+
+<section class="featured-services section-padding" aria-labelledby="services-heading">
+  <div class="container">
+    <SectionHeading id="services-heading">{heading}</SectionHeading>
+    <div class="services-grid">
+      {services.map((service) => (
+        <div class="service-card card reveal">
+          {service.image && (
+            <div class="service-image">
+              <img src={service.image} alt={getServiceName(service)} loading="lazy" />
+            </div>
+          )}
+          <div class="service-info">
+            <h3 class="service-name">{getServiceName(service)}</h3>
+            <div class="service-meta">
+              {service.price && <span class="service-price">{service.price}</span>}
+              {service.duration && <span class="service-duration">{service.duration}</span>}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="services-cta">
+      <a href="/services" class="btn btn-outline">View All Services</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured-services {
+    background-color: var(--color-bg-alt);
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  @media (min-width: 640px) {
+    .services-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .services-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .service-card {
+    background-color: var(--color-surface);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .service-image {
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+  }
+
+  .service-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .service-card:hover .service-image img {
+    transform: scale(1.05);
+  }
+
+  .service-info {
+    padding: 1.5rem;
+  }
+
+  .service-name {
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .service-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+  }
+
+  .service-price {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .services-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  /* ═══ FADE: Hide images, text-only with gold top border ═══ */
+  :global([data-theme="fade"]) .service-card {
+    border: 1px solid var(--color-border);
+    border-top: 2px solid var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .service-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 20px rgba(200, 160, 80, 0.1);
+  }
+
+  :global([data-theme="fade"]) .service-image {
+    display: none;
+  }
+
+  :global([data-theme="fade"]) .service-info {
+    padding: 2rem 1.5rem;
+  }
+
+  :global([data-theme="fade"]) .service-name {
+    letter-spacing: 0.06em;
+  }
+
+  /* ═══ CLEAN: Rounded cards, soft shadow, lift on hover ═══ */
+  :global([data-theme="clean"]) .service-card {
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: none;
+  }
+
+  :global([data-theme="clean"]) .service-card:hover {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+  }
+
+  :global([data-theme="clean"]) .service-image {
+    border-radius: 1.5rem 1.5rem 0 0;
+  }
+
+  :global([data-theme="clean"]) .service-meta .service-price {
+    background-color: var(--color-bg-alt);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+  }
+
+  /* ═══ CHOP: Sharp cards, 2px border, inverted hover ═══ */
+  :global([data-theme="chop"]) .service-card {
+    border: 2px solid var(--color-heading);
+    border-radius: 0;
+    transition: all 0.25s ease;
+  }
+
+  :global([data-theme="chop"]) .service-card:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .service-card:hover .service-name {
+    color: white;
+  }
+
+  :global([data-theme="chop"]) .service-card:hover .service-meta {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  :global([data-theme="chop"]) .service-card:hover .service-price {
+    color: white;
+  }
+
+  :global([data-theme="chop"]) .service-image img {
+    filter: grayscale(100%);
+    transition: filter 0.35s ease;
+  }
+
+  :global([data-theme="chop"]) .service-card:hover .service-image img {
+    filter: grayscale(0%);
+  }
+
+  :global([data-theme="chop"]) .service-name {
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+  }
+</style>

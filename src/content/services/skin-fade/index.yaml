@@ -1,0 +1,7 @@
+name: Skin Fade
+price: '$40'
+duration: '50 min'
+category: haircuts
+image: /images/barber-at-work.jpg
+featured: true
+sortOrder: 2

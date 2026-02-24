@@ -1,0 +1,356 @@
+---
+interface PortfolioItem {
+  slug: string;
+  title: { value?: string } | string;
+  image: string;
+  beforeImage?: string | null;
+  categoryTag?: string;
+  description?: string;
+  featured?: boolean;
+  sortOrder?: number;
+}
+
+interface Props {
+  items: PortfolioItem[];
+}
+
+const { items } = Astro.props;
+
+function getTitle(item: PortfolioItem): string {
+  if (typeof item.title === 'string') return item.title;
+  return item.title?.value || item.slug;
+}
+---
+
+<div class="gallery-grid" role="list">
+  {items.map((item, index) => (
+    <article
+      class="gallery-item card reveal"
+      data-category={item.categoryTag || ''}
+      data-index={index}
+      role="listitem"
+    >
+      <button
+        class="gallery-trigger"
+        type="button"
+        aria-label={`View ${getTitle(item)} in full size`}
+        data-lightbox-open={index}
+      >
+        <div class="gallery-image-wrapper">
+          <img
+            src={item.image}
+            alt={getTitle(item)}
+            loading="lazy"
+            class="gallery-image"
+          />
+          {item.beforeImage && (
+            <span class="before-after-badge" aria-label="Before and after comparison available">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M2 8h5M9 8h5M4.5 5.5L2 8l2.5 2.5M11.5 5.5L14 8l-2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              B / A
+            </span>
+          )}
+        </div>
+        <div class="gallery-overlay">
+          <h3 class="gallery-title">{getTitle(item)}</h3>
+          {item.categoryTag && <span class="gallery-tag">{item.categoryTag}</span>}
+        </div>
+      </button>
+    </article>
+  ))}
+</div>
+
+{items.length === 0 && (
+  <div class="gallery-empty">
+    <p>No portfolio items yet. Check back soon!</p>
+  </div>
+)}
+
+<style>
+  /* ─── Grid Layout ─── */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .gallery-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  /* ─── Gallery Item ─── */
+  .gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background-color: var(--color-surface);
+    transition: all 0.3s ease;
+  }
+
+  .gallery-trigger {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    font-family: inherit;
+    color: inherit;
+    text-align: left;
+  }
+
+  .gallery-trigger:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ─── Image ─── */
+  .gallery-image-wrapper {
+    position: absolute;
+    inset: 0;
+  }
+
+  .gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .gallery-item:hover .gallery-image {
+    transform: scale(1.08);
+  }
+
+  /* ─── Before/After Badge ─── */
+  .before-after-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.3rem 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    border-radius: var(--radius);
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1.4;
+  }
+
+  /* ─── Hover Overlay ─── */
+  .gallery-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 1;
+  }
+
+  .gallery-item:hover .gallery-overlay,
+  .gallery-trigger:focus-visible .gallery-overlay {
+    opacity: 1;
+  }
+
+  .gallery-title {
+    color: white;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+    margin: 0;
+    transform: translateY(8px);
+    transition: transform 0.35s ease;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .gallery-item:hover .gallery-title,
+  .gallery-trigger:focus-visible .gallery-title {
+    transform: translateY(0);
+  }
+
+  .gallery-tag {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8125rem;
+    margin-top: 0.25rem;
+    transform: translateY(8px);
+    transition: transform 0.35s ease 0.05s;
+  }
+
+  .gallery-item:hover .gallery-tag,
+  .gallery-trigger:focus-visible .gallery-tag {
+    transform: translateY(0);
+  }
+
+  /* ─── Empty State ─── */
+  .gallery-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--color-text-muted);
+    font-size: 1.125rem;
+  }
+
+  /* ═══ FADE: Portrait aspect, thin gaps, gold overlay text ═══ */
+  :global([data-theme="fade"]) .gallery-grid {
+    gap: 2px;
+  }
+
+  @media (min-width: 640px) {
+    :global([data-theme="fade"]) .gallery-grid {
+      gap: 2px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :global([data-theme="fade"]) .gallery-grid {
+      gap: 2px;
+    }
+  }
+
+  :global([data-theme="fade"]) .gallery-item {
+    border: none;
+    border-radius: 0;
+  }
+
+  :global([data-theme="fade"]) .gallery-trigger {
+    aspect-ratio: 3 / 4;
+  }
+
+  :global([data-theme="fade"]) .gallery-overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 50%);
+  }
+
+  :global([data-theme="fade"]) .gallery-title {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.875rem;
+    color: var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .gallery-tag {
+    color: rgba(200, 160, 80, 0.6);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  :global([data-theme="fade"]) .gallery-item:hover {
+    box-shadow: 0 0 20px rgba(200, 160, 80, 0.15);
+  }
+
+  :global([data-theme="fade"]) .before-after-badge {
+    background-color: rgba(200, 160, 80, 0.85);
+    border-radius: 0;
+  }
+
+  /* ═══ CLEAN: Rounded, soft shadows, gentle hover ═══ */
+  :global([data-theme="clean"]) .gallery-item {
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: none;
+  }
+
+  :global([data-theme="clean"]) .gallery-item:hover {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+  }
+
+  :global([data-theme="clean"]) .gallery-trigger {
+    border-radius: 1.5rem;
+  }
+
+  :global([data-theme="clean"]) .gallery-item:hover .gallery-image {
+    transform: scale(1.04);
+  }
+
+  :global([data-theme="clean"]) .gallery-overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 50%);
+    border-radius: 1.5rem;
+  }
+
+  :global([data-theme="clean"]) .before-after-badge {
+    border-radius: 999px;
+  }
+
+  /* ═══ CHOP: Irregular grid, grayscale, thick border hover ═══ */
+  :global([data-theme="chop"]) .gallery-item {
+    border-radius: 0;
+    border: 2px solid transparent;
+    transition: border-color 0.25s ease;
+  }
+
+  :global([data-theme="chop"]) .gallery-trigger {
+    border-radius: 0;
+  }
+
+  :global([data-theme="chop"]) .gallery-image {
+    filter: grayscale(100%);
+    transition: filter 0.35s ease, transform 0.5s ease;
+  }
+
+  :global([data-theme="chop"]) .gallery-item:hover .gallery-image {
+    filter: grayscale(0%);
+  }
+
+  :global([data-theme="chop"]) .gallery-item:hover {
+    border-color: var(--color-accent);
+  }
+
+  @media (min-width: 1024px) {
+    :global([data-theme="chop"]) .gallery-item:first-child {
+      grid-column: 1 / -1;
+    }
+
+    :global([data-theme="chop"]) .gallery-item:first-child .gallery-trigger {
+      aspect-ratio: 21 / 9;
+    }
+  }
+
+  :global([data-theme="chop"]) .gallery-overlay {
+    opacity: 1;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 50%);
+  }
+
+  :global([data-theme="chop"]) .gallery-title,
+  :global([data-theme="chop"]) .gallery-tag {
+    transform: translateY(0);
+  }
+
+  :global([data-theme="chop"]) .gallery-title {
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  :global([data-theme="chop"]) .before-after-badge {
+    border-radius: 0;
+    background-color: var(--color-accent);
+    font-weight: 800;
+  }
+</style>

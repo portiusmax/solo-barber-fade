@@ -1,0 +1,149 @@
+---
+import SectionHeading from '@/components/common/SectionHeading.astro';
+import RichText from '@/components/common/RichText.astro';
+
+interface Props {
+  heading?: string;
+  text?: any;
+  image?: string | null;
+}
+
+const { heading, text, image } = Astro.props;
+---
+
+{(heading || text) && (
+  <section class="intro section-padding" aria-labelledby="intro-heading">
+    <div class="intro-inner container">
+      <div class="intro-text reveal">
+        {heading && <SectionHeading align="left" id="intro-heading">{heading}</SectionHeading>}
+        {text && <RichText document={text} />}
+        <a href="/about" class="btn btn-outline intro-link">Learn More</a>
+      </div>
+      {image && (
+        <div class="intro-image reveal">
+          <img src={image} alt="About the barber" loading="lazy" />
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+<style>
+  .intro {
+    background-color: var(--color-bg);
+  }
+
+  .intro-inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .intro-inner {
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+    }
+  }
+
+  .intro-text {
+    order: 2;
+  }
+
+  @media (min-width: 768px) {
+    .intro-text {
+      order: 1;
+    }
+  }
+
+  .intro-link {
+    margin-top: 2rem;
+  }
+
+  .intro-image {
+    order: 1;
+  }
+
+  @media (min-width: 768px) {
+    .intro-image {
+      order: 2;
+    }
+  }
+
+  .intro-image img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  /* ═══ FADE: Gold accent line left of text, corner bracket image ═══ */
+  :global([data-theme="fade"]) .intro-text {
+    padding-left: 2rem;
+    border-left: 1px solid rgba(200, 160, 80, 0.3);
+  }
+
+  :global([data-theme="fade"]) .intro-image {
+    position: relative;
+  }
+
+  :global([data-theme="fade"]) .intro-image::before,
+  :global([data-theme="fade"]) .intro-image::after {
+    content: '';
+    position: absolute;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-color: var(--color-accent);
+    border-style: solid;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  :global([data-theme="fade"]) .intro-image::before {
+    top: -0.5rem;
+    left: -0.5rem;
+    border-width: 1px 0 0 1px;
+  }
+
+  :global([data-theme="fade"]) .intro-image::after {
+    bottom: -0.5rem;
+    right: -0.5rem;
+    border-width: 0 1px 1px 0;
+  }
+
+  :global([data-theme="fade"]) .intro-image img {
+    border: 1px solid var(--color-border);
+  }
+
+  /* ═══ CLEAN: Rounded image with soft shadow, warm bg ═══ */
+  :global([data-theme="clean"]) .intro {
+    background-color: var(--color-bg-alt);
+  }
+
+  :global([data-theme="clean"]) .intro-image img {
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  }
+
+  :global([data-theme="clean"]) .intro-link {
+    border-radius: 999px;
+  }
+
+  /* ═══ CHOP: Grayscale image, thick left border on text ═══ */
+  :global([data-theme="chop"]) .intro-image img {
+    border-radius: 0;
+    filter: grayscale(100%);
+    transition: filter 0.4s ease;
+  }
+
+  :global([data-theme="chop"]) .intro-image:hover img {
+    filter: grayscale(0%);
+  }
+
+  :global([data-theme="chop"]) .intro-text {
+    padding-left: 2rem;
+    border-left: 4px solid var(--color-accent);
+  }
+</style>

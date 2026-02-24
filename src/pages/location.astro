@@ -1,0 +1,211 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SectionHeading from '@/components/common/SectionHeading.astro';
+import RichText from '@/components/common/RichText.astro';
+import { getLocationPage } from '@/lib/keystatic';
+
+const location = await getLocationPage();
+const mobileDesc = location?.mobileDescription ? await location.mobileDescription() : null;
+const locations = location?.locations || [];
+
+const dayLabels: Record<string, string> = {
+  mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu',
+  fri: 'Fri', sat: 'Sat', sun: 'Sun',
+};
+
+const allDays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+---
+
+<BaseLayout title={`${location?.pageHeading || 'Find Me'}`}>
+  <section class="location-page section-padding" style="padding-top: 8rem;">
+    <div class="container">
+      <SectionHeading tag="h1">{location?.pageHeading || 'Find Me'}</SectionHeading>
+
+      <div class="locations-grid">
+        {locations.map((loc) => (
+          <div class="location-card card reveal">
+            <div class="location-info">
+              <h2 class="location-name">{loc.shopName}</h2>
+              <address class="location-address">
+                {loc.address1 && <span>{loc.address1}</span>}
+                {loc.address2 && <span>{loc.address2}</span>}
+                <span>{[loc.city, loc.state, loc.zip].filter(Boolean).join(', ')}</span>
+              </address>
+
+              {loc.hours && (
+                <div class="location-hours">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <span>{loc.hours}</span>
+                </div>
+              )}
+
+              {loc.daysAvailable && loc.daysAvailable.length > 0 && (
+                <div class="location-days">
+                  {allDays.map((day) => (
+                    <span
+                      class:list={['day-badge', { active: loc.daysAvailable.includes(day) }]}
+                    >
+                      {dayLabels[day]}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {loc.notes && <p class="location-notes">{loc.notes}</p>}
+            </div>
+
+            {loc.mapEmbedUrl && (
+              <div class="location-map">
+                <iframe
+                  src={loc.mapEmbedUrl}
+                  width="100%"
+                  height="300"
+                  style="border:0;"
+                  allowfullscreen=""
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  title={`Map of ${loc.shopName}`}
+                ></iframe>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {location?.showMobileServices && mobileDesc && (
+        <div class="mobile-services reveal">
+          <h2 class="subsection-heading">Mobile / House Calls</h2>
+          <RichText document={mobileDesc} />
+        </div>
+      )}
+
+      {location?.parkingInstructions && (
+        <div class="parking-info reveal">
+          <h2 class="subsection-heading">Parking & Access</h2>
+          <p>{location.parkingInstructions}</p>
+        </div>
+      )}
+
+      <div class="location-cta reveal">
+        <a href="/booking" class="btn btn-primary">Book an Appointment</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .locations-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .locations-grid {
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    }
+  }
+
+  .location-card {
+    overflow: hidden;
+    background-color: var(--color-surface);
+    transition: all 0.3s ease;
+  }
+
+  .location-info {
+    padding: 2rem;
+  }
+
+  .location-name {
+    font-size: 1.375rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .location-address {
+    display: flex;
+    flex-direction: column;
+    font-style: normal;
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .location-hours {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text);
+    font-size: 0.9375rem;
+    margin-bottom: 1rem;
+  }
+
+  .location-hours svg {
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .location-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 1rem;
+  }
+
+  .day-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 32px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    background-color: var(--color-bg);
+  }
+
+  .day-badge.active {
+    background-color: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
+  }
+
+  .location-notes {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  .location-map {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .location-map iframe {
+    display: block;
+  }
+
+  .subsection-heading {
+    font-size: 1.375rem;
+    margin-bottom: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+    margin-top: 3rem;
+  }
+
+  .mobile-services,
+  .parking-info {
+    max-width: 800px;
+    margin-inline: auto;
+  }
+
+  .location-cta {
+    text-align: center;
+    margin-top: 3rem;
+  }
+</style>

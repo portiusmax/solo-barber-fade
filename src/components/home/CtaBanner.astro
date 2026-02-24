@@ -1,0 +1,162 @@
+---
+interface Props {
+  heading?: string;
+  text?: string;
+  buttonText?: string;
+  buttonLink?: string;
+}
+
+const {
+  heading = 'Ready for a Fresh Cut?',
+  text = 'Book your appointment today and experience the difference.',
+  buttonText = 'Book Your Appointment',
+  buttonLink = '/booking',
+} = Astro.props;
+---
+
+<section class="cta-banner section-padding" aria-label="Call to action">
+  <div class="cta-inner container reveal">
+    {heading && <h2 class="cta-heading">{heading}</h2>}
+    {text && <p class="cta-text">{text}</p>}
+    {buttonText && (
+      <a href={buttonLink} class="btn btn-primary cta-btn">{buttonText}</a>
+    )}
+  </div>
+</section>
+
+<style>
+  .cta-banner {
+    background-color: var(--color-accent);
+    text-align: center;
+  }
+
+  .cta-heading {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    color: white;
+    margin-bottom: 1rem;
+  }
+
+  .cta-text {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1.125rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+  }
+
+  .cta-btn {
+    background-color: white;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .cta-btn:hover {
+    background-color: var(--color-heading);
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  /* ═══ FADE: Dark bg, gold heading, gold accent lines ═══ */
+  :global([data-theme="fade"]) .cta-banner {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    position: relative;
+  }
+
+  :global([data-theme="fade"]) .cta-banner::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 2rem;
+    width: 3rem;
+    height: 1px;
+    background-color: var(--color-accent);
+    opacity: 0.3;
+  }
+
+  :global([data-theme="fade"]) .cta-banner::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    width: 3rem;
+    height: 1px;
+    background-color: var(--color-accent);
+    opacity: 0.3;
+  }
+
+  :global([data-theme="fade"]) .cta-heading {
+    color: var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .cta-text {
+    color: var(--color-text);
+  }
+
+  :global([data-theme="fade"]) .cta-btn {
+    background-color: transparent;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .cta-btn:hover {
+    background-color: var(--color-accent);
+    color: #0a0a0a;
+    box-shadow: 0 0 30px rgba(200, 160, 80, 0.3);
+  }
+
+  /* ═══ CLEAN: Warm gradient background, large rounded button ═══ */
+  :global([data-theme="clean"]) .cta-banner {
+    background: linear-gradient(135deg, var(--color-accent) 0%, #c4785a 100%);
+  }
+
+  :global([data-theme="clean"]) .cta-heading {
+    font-weight: 600;
+  }
+
+  :global([data-theme="clean"]) .cta-btn {
+    border-radius: 999px;
+    padding: 1.125rem 3rem;
+    font-size: 1.0625rem;
+  }
+
+  :global([data-theme="clean"]) .cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    color: var(--color-accent);
+  }
+
+  /* ═══ CHOP: Stark bg, oversized heading, sharp button ═══ */
+  :global([data-theme="chop"]) .cta-banner {
+    background-color: var(--color-heading);
+  }
+
+  :global([data-theme="chop"]) .cta-heading {
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+
+  :global([data-theme="chop"]) .cta-text {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.9375rem;
+  }
+
+  :global([data-theme="chop"]) .cta-btn {
+    border-radius: 0;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 2px solid white;
+    padding: 1.125rem 2.75rem;
+  }
+
+  :global([data-theme="chop"]) .cta-btn:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+    transform: none;
+  }
+</style>

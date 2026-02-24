@@ -1,0 +1,49 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page Not Found">
+  <section class="not-found section-padding" style="padding-top: 8rem;">
+    <div class="container not-found-content">
+      <span class="not-found-code">404</span>
+      <h1 class="not-found-heading">Page Not Found</h1>
+      <p class="not-found-text">
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .not-found-content {
+    text-align: center;
+  }
+
+  .not-found-code {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: clamp(5rem, 15vw, 10rem);
+    font-weight: var(--heading-weight);
+    color: var(--color-border);
+    line-height: 1;
+    letter-spacing: var(--heading-tracking);
+  }
+
+  .not-found-heading {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    margin: 1rem 0;
+  }
+
+  .not-found-text {
+    color: var(--color-text-muted);
+    font-size: 1.0625rem;
+    margin-bottom: 2rem;
+  }
+</style>

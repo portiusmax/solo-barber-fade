@@ -1,0 +1,7 @@
+name: Scalp Treatment
+price: '$25'
+duration: '20 min'
+category: treatments
+image: /images/barbershop-interior.jpg
+featured: false
+sortOrder: 6

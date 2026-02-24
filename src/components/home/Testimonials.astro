@@ -1,0 +1,250 @@
+---
+import SectionHeading from '@/components/common/SectionHeading.astro';
+
+interface Testimonial {
+  slug: string;
+  clientName: { value?: string } | string;
+  quote?: string;
+  rating?: string;
+  source?: string;
+}
+
+interface Props {
+  heading?: string;
+  testimonials: Testimonial[];
+}
+
+const { heading = 'What Clients Say', testimonials } = Astro.props;
+
+function getName(t: Testimonial): string {
+  if (typeof t.clientName === 'string') return t.clientName;
+  return t.clientName?.value || '';
+}
+
+function renderStars(rating: string): number {
+  return parseInt(rating, 10) || 5;
+}
+---
+
+<section class="testimonials section-padding" aria-labelledby="testimonials-heading">
+  <div class="container">
+    <SectionHeading id="testimonials-heading">{heading}</SectionHeading>
+    <div class="testimonials-grid">
+      {testimonials.map((t) => (
+        <blockquote class="testimonial-card card reveal">
+          {t.rating && (
+            <div class="stars" aria-label={`${t.rating} out of 5 stars`}>
+              {Array.from({ length: renderStars(t.rating) }).map(() => (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              ))}
+            </div>
+          )}
+          <p class="testimonial-quote">"{t.quote}"</p>
+          <footer class="testimonial-footer">
+            <cite class="testimonial-name">— {getName(t)}</cite>
+            {t.source && <span class="testimonial-source">{t.source}</span>}
+          </footer>
+        </blockquote>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .testimonials {
+    background-color: var(--color-bg-alt);
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  @media (min-width: 640px) {
+    .testimonials-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .testimonials-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .testimonial-card {
+    background-color: var(--color-surface);
+    padding: 2rem;
+    margin: 0;
+    transition: all 0.3s ease;
+  }
+
+  .testimonial-quote {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 1rem 0;
+    color: var(--color-text);
+    font-style: italic;
+  }
+
+  .testimonial-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .testimonial-name {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--color-heading);
+    font-size: 0.9375rem;
+  }
+
+  .testimonial-source {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+  }
+
+  /* ═══ FADE: Single-column stack, large gold quote mark, gold left border ═══ */
+  :global([data-theme="fade"]) .testimonials-grid {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+    margin-inline: auto;
+    gap: 0;
+  }
+
+  @media (min-width: 640px) {
+    :global([data-theme="fade"]) .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :global([data-theme="fade"]) .testimonials-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  :global([data-theme="fade"]) .testimonial-card {
+    border-left: 3px solid var(--color-accent);
+    border-top: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: 2.5rem;
+    position: relative;
+  }
+
+  :global([data-theme="fade"]) .testimonial-card + .testimonial-card {
+    border-top: none;
+  }
+
+  :global([data-theme="fade"]) .testimonial-card:first-child::before {
+    content: '\201C';
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 5rem;
+    line-height: 1;
+    color: var(--color-accent);
+    opacity: 0.15;
+    font-family: Georgia, serif;
+    pointer-events: none;
+  }
+
+  :global([data-theme="fade"]) .testimonial-quote {
+    font-style: normal;
+    font-size: 1.0625rem;
+    color: var(--color-text);
+  }
+
+  :global([data-theme="fade"]) .stars {
+    color: var(--color-accent);
+  }
+
+  /* ═══ CLEAN: 3-col cards, rounded, warm amber stars, lift hover ═══ */
+  :global([data-theme="clean"]) .testimonial-card {
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: none;
+    padding: 2.25rem;
+  }
+
+  :global([data-theme="clean"]) .testimonial-card:hover {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+  }
+
+  :global([data-theme="clean"]) .stars {
+    color: #d4a017;
+  }
+
+  :global([data-theme="clean"]) .testimonial-name {
+    font-weight: 600;
+  }
+
+  /* ═══ CHOP: Dark bg section, thick borders, inverted hover ═══ */
+  :global([data-theme="chop"]) .testimonials {
+    background-color: var(--color-heading);
+  }
+
+  :global([data-theme="chop"]) .testimonials :global(.section-heading) {
+    color: white;
+  }
+
+  :global([data-theme="chop"]) .testimonials :global(.section-heading)::after {
+    background-color: var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .testimonial-card {
+    border: 2px solid #444;
+    border-radius: 0;
+    background-color: transparent;
+    transition: all 0.25s ease;
+  }
+
+  :global([data-theme="chop"]) .testimonial-quote {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 1.0625rem;
+    color: #d4d4d4;
+  }
+
+  :global([data-theme="chop"]) .testimonial-name {
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
+    font-weight: 800;
+  }
+
+  :global([data-theme="chop"]) .testimonial-source {
+    color: #888;
+  }
+
+  :global([data-theme="chop"]) .stars {
+    color: var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .testimonial-card:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .testimonial-card:hover .testimonial-quote,
+  :global([data-theme="chop"]) .testimonial-card:hover .testimonial-name {
+    color: white;
+  }
+
+  :global([data-theme="chop"]) .testimonial-card:hover .testimonial-source {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  :global([data-theme="chop"]) .testimonial-card:hover .stars {
+    color: white;
+  }
+</style>

@@ -1,0 +1,854 @@
+---
+interface PortfolioItem {
+  slug: string;
+  title: { value?: string } | string;
+  image: string;
+  beforeImage?: string | null;
+  categoryTag?: string;
+  description?: string;
+}
+
+interface Props {
+  items: PortfolioItem[];
+}
+
+const { items } = Astro.props;
+
+function getTitle(item: PortfolioItem): string {
+  if (typeof item.title === 'string') return item.title;
+  return item.title?.value || item.slug;
+}
+
+// Serialize data for client-side JS
+const lightboxData = items.map((item) => ({
+  title: getTitle(item),
+  image: item.image,
+  beforeImage: item.beforeImage || null,
+  categoryTag: item.categoryTag || '',
+  description: item.description || '',
+}));
+---
+
+<div
+  class="lightbox-backdrop"
+  id="portfolio-lightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Portfolio image viewer"
+  aria-hidden="true"
+>
+  <div class="lightbox-inner">
+    <!-- Close button -->
+    <button
+      class="lightbox-close"
+      type="button"
+      aria-label="Close lightbox"
+      id="lightbox-close"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Navigation: Previous -->
+    <button
+      class="lightbox-nav lightbox-prev"
+      type="button"
+      aria-label="Previous image"
+      id="lightbox-prev"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Navigation: Next -->
+    <button
+      class="lightbox-nav lightbox-next"
+      type="button"
+      aria-label="Next image"
+      id="lightbox-next"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Content area -->
+    <div class="lightbox-content" id="lightbox-content">
+      <!-- Standard single image view -->
+      <div class="lightbox-single" id="lightbox-single">
+        <img
+          class="lightbox-image"
+          id="lightbox-image"
+          src=""
+          alt=""
+        />
+      </div>
+
+      <!-- Before/After comparison view -->
+      <div class="lightbox-compare" id="lightbox-compare" hidden>
+        <div class="compare-container" id="compare-container">
+          <div class="compare-label compare-label-before">Before</div>
+          <div class="compare-label compare-label-after">After</div>
+          <img class="compare-image compare-after" id="compare-after" src="" alt="" />
+          <div class="compare-clip" id="compare-clip">
+            <img class="compare-image compare-before" id="compare-before" src="" alt="" />
+          </div>
+          <div class="compare-slider" id="compare-slider" role="slider" aria-label="Before and after comparison slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+            <div class="compare-handle">
+              <div class="compare-handle-line"></div>
+              <div class="compare-handle-grip">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2"/>
+                  <path d="M7 7L4 10l3 3M13 7l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="compare-handle-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info bar -->
+    <div class="lightbox-info" id="lightbox-info">
+      <div class="lightbox-info-text">
+        <h3 class="lightbox-title" id="lightbox-title"></h3>
+        <span class="lightbox-tag" id="lightbox-tag"></span>
+      </div>
+      <p class="lightbox-desc" id="lightbox-desc"></p>
+      <span class="lightbox-counter" id="lightbox-counter"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Serialized data for JS -->
+<script id="lightbox-data" type="application/json" set:html={JSON.stringify(lightboxData)} />
+
+<style>
+  /* ─── Backdrop ─── */
+  .lightbox-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background-color: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .lightbox-backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ─── Inner Container ─── */
+  .lightbox-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .lightbox-inner {
+      padding: 2rem;
+    }
+  }
+
+  /* ─── Close Button ─── */
+  .lightbox-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .lightbox-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+
+  .lightbox-close:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ─── Navigation Buttons ─── */
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .lightbox-prev {
+    left: 0.75rem;
+  }
+
+  .lightbox-next {
+    right: 0.75rem;
+  }
+
+  @media (min-width: 768px) {
+    .lightbox-prev { left: 1.5rem; }
+    .lightbox-next { right: 1.5rem; }
+  }
+
+  .lightbox-nav:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .lightbox-nav:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ─── Content Area ─── */
+  .lightbox-content {
+    max-width: 90vw;
+    max-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  @media (min-width: 768px) {
+    .lightbox-content {
+      max-width: 80vw;
+      max-height: 72vh;
+    }
+  }
+
+  /* ─── Single Image View ─── */
+  .lightbox-single {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .lightbox-image {
+    max-width: 90vw;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: var(--radius);
+    user-select: none;
+    -webkit-user-drag: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .lightbox-image.loaded {
+    opacity: 1;
+  }
+
+  @media (min-width: 768px) {
+    .lightbox-image {
+      max-width: 80vw;
+      max-height: 72vh;
+    }
+  }
+
+  /* ─── Before/After Comparison ─── */
+  .lightbox-compare {
+    max-width: 90vw;
+    max-height: 70vh;
+  }
+
+  @media (min-width: 768px) {
+    .lightbox-compare {
+      max-width: 80vw;
+      max-height: 72vh;
+    }
+  }
+
+  .compare-container {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    border-radius: var(--radius);
+    user-select: none;
+    touch-action: none;
+    line-height: 0;
+  }
+
+  .compare-image {
+    display: block;
+    max-width: 90vw;
+    max-height: 70vh;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  @media (min-width: 768px) {
+    .compare-image {
+      max-width: 80vw;
+      max-height: 72vh;
+    }
+  }
+
+  .compare-clip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 50%;
+    overflow: hidden;
+  }
+
+  .compare-clip .compare-before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: auto;
+    height: 100%;
+    max-width: none;
+    max-height: 100%;
+  }
+
+  /* ─── Comparison Labels ─── */
+  .compare-label {
+    position: absolute;
+    top: 1rem;
+    z-index: 3;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    border-radius: var(--radius);
+    pointer-events: none;
+  }
+
+  .compare-label-before {
+    left: 1rem;
+  }
+
+  .compare-label-after {
+    right: 1rem;
+  }
+
+  /* ─── Slider Handle ─── */
+  .compare-slider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 44px;
+    transform: translateX(-50%);
+    cursor: ew-resize;
+    z-index: 5;
+  }
+
+  .compare-slider:focus-visible {
+    outline: none;
+  }
+
+  .compare-slider:focus-visible .compare-handle-grip {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .compare-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .compare-handle-line {
+    flex: 1;
+    width: 2px;
+    background-color: white;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .compare-handle-grip {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: white;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+  }
+
+  /* ─── Info Bar ─── */
+  .lightbox-info {
+    margin-top: 1.25rem;
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  .lightbox-info-text {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .lightbox-title {
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .lightbox-tag {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8125rem;
+  }
+
+  .lightbox-desc {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.875rem;
+    margin: 0.5rem 0 0;
+    line-height: 1.5;
+  }
+
+  .lightbox-desc:empty {
+    display: none;
+  }
+
+  .lightbox-counter {
+    display: block;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Theme: Fade ─── */
+  :global([data-theme="fade"]) .lightbox-title {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  :global([data-theme="fade"]) .lightbox-tag {
+    color: var(--color-accent);
+    opacity: 0.8;
+  }
+
+  :global([data-theme="fade"]) .compare-handle-grip {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  :global([data-theme="fade"]) .compare-handle-line {
+    background-color: var(--color-accent);
+  }
+
+  /* ─── Theme: Chop ─── */
+  :global([data-theme="chop"]) .lightbox-image,
+  :global([data-theme="chop"]) .compare-container {
+    border-radius: 0;
+  }
+
+  :global([data-theme="chop"]) .lightbox-title {
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  :global([data-theme="chop"]) .compare-label {
+    border-radius: 0;
+  }
+
+  :global([data-theme="chop"]) .compare-handle-grip {
+    border-radius: 0;
+    background-color: var(--color-accent);
+    color: white;
+  }
+</style>
+
+<script>
+  function initLightbox() {
+    const backdrop = document.getElementById('portfolio-lightbox') as HTMLElement | null;
+    const dataEl = document.getElementById('lightbox-data');
+    if (!backdrop || !dataEl) return;
+
+    const items: Array<{
+      title: string;
+      image: string;
+      beforeImage: string | null;
+      categoryTag: string;
+      description: string;
+    }> = JSON.parse(dataEl.textContent || '[]');
+
+    if (items.length === 0) return;
+
+    // DOM references
+    const closeBtn = document.getElementById('lightbox-close') as HTMLButtonElement;
+    const prevBtn = document.getElementById('lightbox-prev') as HTMLButtonElement;
+    const nextBtn = document.getElementById('lightbox-next') as HTMLButtonElement;
+    const singleView = document.getElementById('lightbox-single') as HTMLElement;
+    const compareView = document.getElementById('lightbox-compare') as HTMLElement;
+    const mainImage = document.getElementById('lightbox-image') as HTMLImageElement;
+    const compareBefore = document.getElementById('compare-before') as HTMLImageElement;
+    const compareAfter = document.getElementById('compare-after') as HTMLImageElement;
+    const compareClip = document.getElementById('compare-clip') as HTMLElement;
+    const compareSlider = document.getElementById('compare-slider') as HTMLElement;
+    const compareContainer = document.getElementById('compare-container') as HTMLElement;
+    const titleEl = document.getElementById('lightbox-title') as HTMLElement;
+    const tagEl = document.getElementById('lightbox-tag') as HTMLElement;
+    const descEl = document.getElementById('lightbox-desc') as HTMLElement;
+    const counterEl = document.getElementById('lightbox-counter') as HTMLElement;
+
+    let currentIndex = 0;
+    let isOpen = false;
+    let previousFocus: HTMLElement | null = null;
+    let sliderDragging = false;
+
+    // ── Focusable elements for focus trap ──
+    function getFocusableElements(): HTMLElement[] {
+      return Array.from(
+        backdrop.querySelectorAll<HTMLElement>(
+          'button:not([hidden]):not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      );
+    }
+
+    // ── Open Lightbox ──
+    function open(index: number) {
+      currentIndex = index;
+      previousFocus = document.activeElement as HTMLElement;
+
+      update();
+
+      backdrop.classList.add('is-open');
+      backdrop.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      isOpen = true;
+
+      // Focus the close button after transition
+      requestAnimationFrame(() => {
+        closeBtn.focus();
+      });
+    }
+
+    // ── Close Lightbox ──
+    function close() {
+      backdrop.classList.remove('is-open');
+      backdrop.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      isOpen = false;
+
+      if (previousFocus) {
+        previousFocus.focus();
+        previousFocus = null;
+      }
+    }
+
+    // ── Navigate ──
+    function goTo(index: number) {
+      // Get the currently visible (non-hidden) items based on filter state
+      const visibleIndices = getVisibleIndices();
+      if (visibleIndices.length === 0) return;
+
+      // Find position of current index in visible items
+      let pos = visibleIndices.indexOf(index);
+      if (pos === -1) pos = 0;
+
+      currentIndex = visibleIndices[pos];
+      update();
+    }
+
+    function getVisibleIndices(): number[] {
+      const galleryItems = document.querySelectorAll<HTMLElement>('[data-category]');
+      const indices: number[] = [];
+      galleryItems.forEach((el) => {
+        if (!el.hasAttribute('hidden') && el.style.display !== 'none') {
+          const idx = parseInt(el.dataset.index || '0', 10);
+          indices.push(idx);
+        }
+      });
+      return indices.length > 0 ? indices : items.map((_, i) => i);
+    }
+
+    function goNext() {
+      const visible = getVisibleIndices();
+      const pos = visible.indexOf(currentIndex);
+      const nextPos = pos < visible.length - 1 ? pos + 1 : 0;
+      currentIndex = visible[nextPos];
+      update();
+    }
+
+    function goPrev() {
+      const visible = getVisibleIndices();
+      const pos = visible.indexOf(currentIndex);
+      const prevPos = pos > 0 ? pos - 1 : visible.length - 1;
+      currentIndex = visible[prevPos];
+      update();
+    }
+
+    // ── Update Display ──
+    function update() {
+      const item = items[currentIndex];
+      if (!item) return;
+
+      const visible = getVisibleIndices();
+      const displayIndex = visible.indexOf(currentIndex) + 1;
+
+      // Update info
+      titleEl.textContent = item.title;
+      tagEl.textContent = item.categoryTag;
+      descEl.textContent = item.description;
+      counterEl.textContent = `${displayIndex} / ${visible.length}`;
+
+      // Show/hide nav buttons
+      prevBtn.style.display = visible.length > 1 ? '' : 'none';
+      nextBtn.style.display = visible.length > 1 ? '' : 'none';
+
+      if (item.beforeImage) {
+        // Show before/after comparison
+        singleView.hidden = true;
+        compareView.hidden = false;
+
+        compareAfter.src = item.image;
+        compareAfter.alt = `${item.title} - After`;
+        compareBefore.src = item.beforeImage;
+        compareBefore.alt = `${item.title} - Before`;
+
+        // Reset slider to center
+        setSliderPosition(50);
+      } else {
+        // Show single image
+        singleView.hidden = false;
+        compareView.hidden = true;
+
+        mainImage.classList.remove('loaded');
+        mainImage.src = item.image;
+        mainImage.alt = item.title;
+        mainImage.onload = () => {
+          mainImage.classList.add('loaded');
+        };
+        // In case the image is already cached
+        if (mainImage.complete) {
+          mainImage.classList.add('loaded');
+        }
+      }
+    }
+
+    // ── Before/After Slider ──
+    function setSliderPosition(percent: number) {
+      const clamped = Math.max(0, Math.min(100, percent));
+      compareClip.style.width = `${clamped}%`;
+      compareSlider.style.left = `${clamped}%`;
+      compareSlider.setAttribute('aria-valuenow', String(Math.round(clamped)));
+    }
+
+    function getSliderPercent(clientX: number): number {
+      const rect = compareContainer.getBoundingClientRect();
+      return ((clientX - rect.left) / rect.width) * 100;
+    }
+
+    // Mouse events for slider
+    compareSlider.addEventListener('mousedown', (e: MouseEvent) => {
+      e.preventDefault();
+      sliderDragging = true;
+    });
+
+    window.addEventListener('mousemove', (e: MouseEvent) => {
+      if (!sliderDragging) return;
+      setSliderPosition(getSliderPercent(e.clientX));
+    });
+
+    window.addEventListener('mouseup', () => {
+      sliderDragging = false;
+    });
+
+    // Touch events for slider
+    compareSlider.addEventListener('touchstart', (e: TouchEvent) => {
+      sliderDragging = true;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e: TouchEvent) => {
+      if (!sliderDragging) return;
+      const touch = e.touches[0];
+      setSliderPosition(getSliderPercent(touch.clientX));
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      sliderDragging = false;
+    });
+
+    // Keyboard for slider
+    compareSlider.addEventListener('keydown', (e: KeyboardEvent) => {
+      const current = parseFloat(compareSlider.getAttribute('aria-valuenow') || '50');
+      const step = 2;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setSliderPosition(current - step);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setSliderPosition(current + step);
+      }
+    });
+
+    // ── Event Listeners ──
+
+    // Open triggers
+    document.addEventListener('click', (e: Event) => {
+      const trigger = (e.target as HTMLElement).closest('[data-lightbox-open]');
+      if (trigger) {
+        const index = parseInt(trigger.getAttribute('data-lightbox-open') || '0', 10);
+        open(index);
+      }
+    });
+
+    // Close button
+    closeBtn.addEventListener('click', close);
+
+    // Close on backdrop click
+    backdrop.addEventListener('click', (e: Event) => {
+      if (e.target === backdrop || (e.target as HTMLElement).classList.contains('lightbox-inner')) {
+        close();
+      }
+    });
+
+    // Prevent clicks inside content from closing
+    const contentEl = document.getElementById('lightbox-content');
+    contentEl?.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+    });
+
+    // Navigation buttons
+    prevBtn.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      goPrev();
+    });
+    nextBtn.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      goNext();
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (!isOpen) return;
+
+      switch (e.key) {
+        case 'Escape':
+          close();
+          break;
+        case 'ArrowLeft':
+          // Only navigate images if slider is not focused
+          if (document.activeElement !== compareSlider) {
+            goPrev();
+          }
+          break;
+        case 'ArrowRight':
+          if (document.activeElement !== compareSlider) {
+            goNext();
+          }
+          break;
+        case 'Tab':
+          // Focus trap
+          const focusable = getFocusableElements();
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey) {
+            if (document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            }
+          } else {
+            if (document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+          break;
+      }
+    });
+
+    // Swipe support for mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    backdrop.addEventListener('touchstart', (e: TouchEvent) => {
+      // Don't capture swipes on the slider
+      if ((e.target as HTMLElement).closest('#compare-slider, #compare-container')) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    backdrop.addEventListener('touchend', (e: TouchEvent) => {
+      if ((e.target as HTMLElement).closest('#compare-slider, #compare-container')) return;
+
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      // Only handle horizontal swipes (ignore mostly vertical)
+      if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5) {
+        if (deltaX > 0) {
+          goPrev();
+        } else {
+          goNext();
+        }
+      }
+    }, { passive: true });
+  }
+
+  // Run on initial load
+  initLightbox();
+
+  // Re-initialize after Astro view transitions
+  document.addEventListener('astro:after-swap', initLightbox);
+</script>
