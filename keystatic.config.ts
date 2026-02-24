@@ -8,7 +8,7 @@ const storage =
 export default config({
   storage,
   cloud: {
-    project: 'solo-barber/demo',
+    project: 'young/solo-barber-fade',
   },
   ui: {
     brand: { name: 'Solo Barber CMS' },
