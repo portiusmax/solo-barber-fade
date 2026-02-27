@@ -104,10 +104,6 @@ const structuredData = {
     <ClientRouter />
   </head>
   <body>
-    <div class="custom-cursor" id="custom-cursor" aria-hidden="true">
-      <div class="cursor-dot"></div>
-      <div class="cursor-ring"></div>
-    </div>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <Header transition:persist />
     <main id="main-content" transition:animate="fade">
@@ -161,61 +157,5 @@ const structuredData = {
       document.addEventListener('astro:after-swap', initSkeletons);
     </script>
 
-    <script>
-      function initCursor() {
-        if (window.matchMedia('(pointer: coarse)').matches) return;
-        if ('ontouchstart' in window) return;
-
-        const cursor = document.getElementById('custom-cursor');
-        if (!cursor) return;
-
-        const dot = cursor.querySelector('.cursor-dot');
-        const ring = cursor.querySelector('.cursor-ring');
-        if (!dot || !ring) return;
-
-        document.body.classList.add('has-custom-cursor');
-
-        let mouseX = 0, mouseY = 0;
-        let ringX = 0, ringY = 0;
-        let rafId = null;
-
-        document.addEventListener('mousemove', (e) => {
-          mouseX = e.clientX;
-          mouseY = e.clientY;
-          dot.style.left = mouseX + 'px';
-          dot.style.top = mouseY + 'px';
-        });
-
-        function animate() {
-          ringX += (mouseX - ringX) * 0.12;
-          ringY += (mouseY - ringY) * 0.12;
-          ring.style.left = ringX + 'px';
-          ring.style.top = ringY + 'px';
-          rafId = requestAnimationFrame(animate);
-        }
-        animate();
-
-        const interactive = 'a, button, [role="button"], input, textarea, select, .gallery-trigger, .flip-card';
-        document.addEventListener('mouseover', (e) => {
-          if (e.target.closest(interactive)) cursor.classList.add('hovering');
-        });
-        document.addEventListener('mouseout', (e) => {
-          if (e.target.closest(interactive)) cursor.classList.remove('hovering');
-        });
-
-        // Pause animation when tab is hidden
-        document.addEventListener('visibilitychange', () => {
-          if (document.hidden && rafId) {
-            cancelAnimationFrame(rafId);
-            rafId = null;
-          } else if (!document.hidden && !rafId) {
-            animate();
-          }
-        });
-      }
-
-      initCursor();
-      document.addEventListener('astro:after-swap', initCursor);
-    </script>
   </body>
 </html>
