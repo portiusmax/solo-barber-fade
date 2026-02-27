@@ -25,9 +25,9 @@ function getTitle(item: PortfolioItem): string {
   <div class="container">
     <SectionHeading id="work-heading">{heading}</SectionHeading>
     <div class="work-grid">
-      {items.map((item) => (
-        <a href="/portfolio" class="work-item reveal" aria-label={getTitle(item)}>
-          <img src={item.image} alt={getTitle(item)} loading="lazy" />
+      {items.map((item, i) => (
+        <a href="/portfolio" class="work-item image-skeleton reveal" style={`--reveal-delay: ${i * 80}ms`} aria-label={getTitle(item)}>
+          <img src={item.image} alt={getTitle(item)} loading="lazy" decoding="async" />
           <div class="work-overlay">
             <span class="work-title">{getTitle(item)}</span>
             {item.categoryTag && <span class="work-tag">{item.categoryTag}</span>}

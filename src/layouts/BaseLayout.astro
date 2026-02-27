@@ -3,7 +3,9 @@ import { getSiteSettings, getSeo } from '@/lib/keystatic';
 import Header from '@/components/common/Header.astro';
 import Footer from '@/components/common/Footer.astro';
 import ScrollToTop from '@/components/common/ScrollToTop.astro';
+import MobileCta from '@/components/common/MobileCta.astro';
 import '@/styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title?: string;
@@ -99,18 +101,26 @@ const structuredData = {
         }
       `} />
     )}
+    <ClientRouter />
   </head>
   <body>
+    <div class="custom-cursor" id="custom-cursor" aria-hidden="true">
+      <div class="cursor-dot"></div>
+      <div class="cursor-ring"></div>
+    </div>
     <a href="#main-content" class="skip-link">Skip to content</a>
-    <Header />
-    <main id="main-content">
+    <Header transition:persist />
+    <main id="main-content" transition:animate="fade">
       <slot />
     </main>
-    <Footer />
-    <ScrollToTop />
+    <Footer transition:persist />
+    <ScrollToTop transition:persist />
+    <MobileCta />
 
     <!-- Scroll reveal observer -->
     <script>
+      const REVEAL_SELECTOR = '.reveal, .reveal-left, .reveal-right, .reveal-scale';
+
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -123,12 +133,89 @@ const structuredData = {
         { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
       );
 
-      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+      document.querySelectorAll(REVEAL_SELECTOR).forEach((el) => observer.observe(el));
 
-      // Re-observe after view transitions
       document.addEventListener('astro:after-swap', () => {
-        document.querySelectorAll('.reveal:not(.visible)').forEach((el) => observer.observe(el));
+        document.querySelectorAll(REVEAL_SELECTOR).forEach((el) => {
+          if (!el.classList.contains('visible')) observer.observe(el);
+        });
       });
+    </script>
+
+    <!-- Skeleton loading handler -->
+    <script>
+      function initSkeletons() {
+        document.querySelectorAll('.image-skeleton img').forEach((img) => {
+          const parent = img.closest('.image-skeleton');
+          if (!parent) return;
+          if (img.complete && img.naturalWidth > 0) {
+            parent.classList.add('loaded');
+          } else {
+            img.addEventListener('load', () => parent.classList.add('loaded'), { once: true });
+            img.addEventListener('error', () => parent.classList.add('loaded'), { once: true });
+          }
+        });
+      }
+
+      initSkeletons();
+      document.addEventListener('astro:after-swap', initSkeletons);
+    </script>
+
+    <script>
+      function initCursor() {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
+        if ('ontouchstart' in window) return;
+
+        const cursor = document.getElementById('custom-cursor');
+        if (!cursor) return;
+
+        const dot = cursor.querySelector('.cursor-dot');
+        const ring = cursor.querySelector('.cursor-ring');
+        if (!dot || !ring) return;
+
+        document.body.classList.add('has-custom-cursor');
+
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
+        let rafId = null;
+
+        document.addEventListener('mousemove', (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          dot.style.left = mouseX + 'px';
+          dot.style.top = mouseY + 'px';
+        });
+
+        function animate() {
+          ringX += (mouseX - ringX) * 0.12;
+          ringY += (mouseY - ringY) * 0.12;
+          ring.style.left = ringX + 'px';
+          ring.style.top = ringY + 'px';
+          rafId = requestAnimationFrame(animate);
+        }
+        animate();
+
+        const interactive = 'a, button, [role="button"], input, textarea, select, .gallery-trigger, .flip-card';
+        document.addEventListener('mouseover', (e) => {
+          if (e.target.closest(interactive)) cursor.classList.add('hovering');
+        });
+        document.addEventListener('mouseout', (e) => {
+          if (e.target.closest(interactive)) cursor.classList.remove('hovering');
+        });
+
+        // Pause animation when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden && rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          } else if (!document.hidden && !rafId) {
+            animate();
+          }
+        });
+      }
+
+      initCursor();
+      document.addEventListener('astro:after-swap', initCursor);
     </script>
   </body>
 </html>

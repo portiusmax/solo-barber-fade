@@ -6,6 +6,8 @@ import FeaturedServices from '@/components/home/FeaturedServices.astro';
 import FeaturedWork from '@/components/home/FeaturedWork.astro';
 import Testimonials from '@/components/home/Testimonials.astro';
 import CtaBanner from '@/components/home/CtaBanner.astro';
+import InstagramFeed from '@/components/home/InstagramFeed.astro';
+import SectionDivider from '@/components/common/SectionDivider.astro';
 import {
   getHomepage,
   getFeaturedServices,
@@ -39,11 +41,15 @@ const testimonials = homepage?.showTestimonials
     backgroundImage={homepage?.heroImage}
   />
 
+  <SectionDivider />
+
   <Intro
     heading={homepage?.introHeading}
     text={introDocument}
     image={homepage?.introImage}
   />
+
+  <SectionDivider />
 
   {homepage?.showFeaturedServices && featuredServices.length > 0 && (
     <FeaturedServices
@@ -52,6 +58,8 @@ const testimonials = homepage?.showTestimonials
     />
   )}
 
+  <SectionDivider />
+
   {homepage?.showFeaturedWork && featuredWork.length > 0 && (
     <FeaturedWork
       heading={homepage?.featuredWorkHeading}
@@ -59,12 +67,27 @@ const testimonials = homepage?.showTestimonials
     />
   )}
 
+  <SectionDivider />
+
   {homepage?.showTestimonials && testimonials.length > 0 && (
     <Testimonials
       heading={homepage?.testimonialsHeading}
       testimonials={testimonials}
     />
   )}
+
+  {homepage?.showInstagramSection && homepage?.instagramPhotos?.length > 0 && (
+    <Fragment>
+      <SectionDivider />
+      <InstagramFeed
+        photos={homepage.instagramPhotos}
+        handle={homepage.instagramHandle}
+        url={homepage.instagramUrl}
+      />
+    </Fragment>
+  )}
+
+  <SectionDivider />
 
   <CtaBanner
     heading={homepage?.ctaBannerHeading}

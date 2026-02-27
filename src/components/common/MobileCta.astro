@@ -1,0 +1,105 @@
+---
+const bookingLink = '/booking';
+---
+
+<div class="mobile-cta" id="mobile-cta" aria-hidden="true">
+  <a href={bookingLink} class="mobile-cta-btn btn btn-primary">
+    Book Now
+  </a>
+</div>
+
+<style>
+  .mobile-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 45;
+    padding: 0.75rem 1rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    background-color: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .mobile-cta {
+      display: block;
+    }
+  }
+
+  .mobile-cta.visible {
+    transform: translateY(0);
+  }
+
+  .mobile-cta-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+
+  /* ═══ FADE ═══ */
+  :global([data-theme="fade"]) .mobile-cta {
+    background-color: #0a0a0a;
+    border-top-color: var(--color-accent);
+  }
+
+  /* ═══ CLEAN ═══ */
+  :global([data-theme="clean"]) .mobile-cta {
+    background-color: #ffffff;
+    border-top: none;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  :global([data-theme="clean"]) .mobile-cta-btn {
+    border-radius: 999px;
+  }
+
+  /* ═══ CHOP ═══ */
+  :global([data-theme="chop"]) .mobile-cta {
+    background-color: #0a0a0a;
+    border-top: 3px solid var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .mobile-cta-btn {
+    border-radius: 0;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+</style>
+
+<script>
+  function initMobileCta() {
+    const bar = document.getElementById('mobile-cta');
+    if (!bar) return;
+
+    const hero = document.querySelector('.hero');
+    const footer = document.querySelector('footer');
+    if (!hero) return;
+
+    let visible = false;
+
+    const onScroll = () => {
+      const heroBottom = hero.getBoundingClientRect().bottom;
+      const footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
+      const shouldShow = heroBottom < 0 && footerTop > window.innerHeight + 60;
+
+      if (shouldShow !== visible) {
+        visible = shouldShow;
+        bar.classList.toggle('visible', visible);
+        bar.setAttribute('aria-hidden', String(!visible));
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  initMobileCta();
+  document.addEventListener('astro:after-swap', initMobileCta);
+</script>

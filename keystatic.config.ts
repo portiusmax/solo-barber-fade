@@ -257,6 +257,34 @@ export default config({
           label: 'CTA Banner Button Link',
           defaultValue: '/booking',
         }),
+        showInstagramSection: fields.checkbox({
+          label: 'Show Instagram Section',
+          description: 'Toggle the Instagram photo grid on the homepage.',
+          defaultValue: false,
+        }),
+        instagramHandle: fields.text({
+          label: 'Instagram Handle',
+          description: 'Your Instagram username (e.g. "@marcusfade").',
+        }),
+        instagramUrl: fields.url({
+          label: 'Instagram Profile URL',
+          description: 'Link to your Instagram profile.',
+        }),
+        instagramPhotos: fields.array(
+          fields.object({
+            image: fields.image({
+              label: 'Photo',
+              directory: 'public/images/instagram',
+              publicPath: '/images/instagram/',
+            }),
+            caption: fields.text({ label: 'Caption (optional)' }),
+          }),
+          {
+            label: 'Instagram Grid Photos',
+            description: 'Add up to 6 photos for the Instagram-style grid.',
+            itemLabel: (props) => props.fields.caption.value || 'Photo',
+          }
+        ),
       },
     }),
 

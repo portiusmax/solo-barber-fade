@@ -34,7 +34,7 @@ const {
           />
           {yearsExperience && (
             <div class="experience-badge" aria-label={`${yearsExperience} years of experience`}>
-              <span class="experience-number">{yearsExperience}</span>
+              <span class="experience-number" data-count-to={yearsExperience}>{yearsExperience}</span>
               <span class="experience-label">Years</span>
             </div>
           )}
@@ -321,3 +321,43 @@ const {
     border-top: 3px solid var(--color-heading);
   }
 </style>
+
+<script>
+  function initCounters() {
+    const counters = document.querySelectorAll('[data-count-to]');
+    if (!counters.length) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        const target = parseInt(entry.target.getAttribute('data-count-to'), 10);
+
+        if (prefersReducedMotion || isNaN(target)) {
+          entry.target.textContent = target.toString();
+          return;
+        }
+
+        entry.target.textContent = '0';
+        const duration = 1500;
+        const start = performance.now();
+
+        function tick(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          entry.target.textContent = Math.round(eased * target).toString();
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.5 });
+
+    counters.forEach((el) => observer.observe(el));
+  }
+
+  initCounters();
+  document.addEventListener('astro:after-swap', initCounters);
+</script>

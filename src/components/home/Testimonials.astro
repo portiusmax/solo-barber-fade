@@ -30,8 +30,8 @@ function renderStars(rating: string): number {
   <div class="container">
     <SectionHeading id="testimonials-heading">{heading}</SectionHeading>
     <div class="testimonials-grid">
-      {testimonials.map((t) => (
-        <blockquote class="testimonial-card card reveal">
+      {testimonials.map((t, i) => (
+        <blockquote class="testimonial-card card reveal" style={`--reveal-delay: ${i * 120}ms`}>
           {t.rating && (
             <div class="stars" aria-label={`${t.rating} out of 5 stars`}>
               {Array.from({ length: renderStars(t.rating) }).map(() => (
@@ -49,6 +49,7 @@ function renderStars(rating: string): number {
         </blockquote>
       ))}
     </div>
+    <div class="carousel-dots" id="carousel-dots" aria-label="Testimonial navigation"></div>
   </div>
 </section>
 
@@ -247,4 +248,129 @@ function renderStars(rating: string): number {
   :global([data-theme="chop"]) .testimonial-card:hover .stars {
     color: white;
   }
+
+  /* Carousel mode */
+  .testimonials-grid.carousel-active .testimonial-card {
+    display: none;
+  }
+
+  .testimonials-grid.carousel-active .testimonial-card.carousel-visible {
+    display: block;
+  }
+
+  .carousel-dots {
+    display: none;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  .carousel-dots.active {
+    display: flex;
+  }
+
+  .carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--color-accent);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.3s ease;
+  }
+
+  .carousel-dot.current {
+    background-color: var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .carousel-dot {
+    border-radius: 0;
+  }
 </style>
+
+<script>
+  function initCarousel() {
+    const grid = document.querySelector('.testimonials-grid');
+    const dotsContainer = document.getElementById('carousel-dots');
+    if (!grid || !dotsContainer) return;
+
+    const cards = Array.from(grid.querySelectorAll('.testimonial-card'));
+    if (cards.length <= 3) return; // Don't carousel for small counts
+
+    grid.classList.add('carousel-active');
+    dotsContainer.classList.add('active');
+
+    let perPage = 3;
+    const updatePerPage = () => {
+      if (window.innerWidth < 640) perPage = 1;
+      else if (window.innerWidth < 1024) perPage = 2;
+      else perPage = 3;
+    };
+    updatePerPage();
+
+    const totalPages = Math.ceil(cards.length / perPage);
+    let currentPage = 0;
+    let timer;
+
+    // Build dots
+    function buildDots() {
+      dotsContainer.innerHTML = '';
+      const pages = Math.ceil(cards.length / perPage);
+      for (let i = 0; i < pages; i++) {
+        const dot = document.createElement('button');
+        dot.className = `carousel-dot${i === currentPage ? ' current' : ''}`;
+        dot.setAttribute('aria-label', `Show testimonials page ${i + 1}`);
+        dot.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    function showPage(page) {
+      cards.forEach((card, i) => {
+        const start = page * perPage;
+        const end = start + perPage;
+        card.classList.toggle('carousel-visible', i >= start && i < end);
+      });
+      dotsContainer.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+        dot.classList.toggle('current', i === page);
+      });
+    }
+
+    function goTo(page) {
+      currentPage = page;
+      showPage(currentPage);
+    }
+
+    function next() {
+      const pages = Math.ceil(cards.length / perPage);
+      goTo((currentPage + 1) % pages);
+    }
+
+    function startAutoplay() {
+      timer = setInterval(next, 5000);
+    }
+
+    function stopAutoplay() {
+      clearInterval(timer);
+    }
+
+    // Pause on hover
+    grid.addEventListener('mouseenter', stopAutoplay);
+    grid.addEventListener('mouseleave', startAutoplay);
+
+    // Responsive: rebuild on resize
+    window.addEventListener('resize', () => {
+      updatePerPage();
+      buildDots();
+      showPage(Math.min(currentPage, Math.ceil(cards.length / perPage) - 1));
+    });
+
+    buildDots();
+    showPage(0);
+    startAutoplay();
+  }
+
+  initCarousel();
+  document.addEventListener('astro:after-swap', initCarousel);
+</script>

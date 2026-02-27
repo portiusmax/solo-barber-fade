@@ -1,0 +1,164 @@
+---
+import SectionHeading from '@/components/common/SectionHeading.astro';
+
+interface Photo {
+  image: string | null;
+  caption?: string;
+}
+
+interface Props {
+  photos: Photo[];
+  handle?: string;
+  url?: string;
+}
+
+const { photos, handle, url } = Astro.props;
+const validPhotos = photos.filter((p) => p.image).slice(0, 6);
+if (validPhotos.length === 0) return null;
+---
+
+<section class="instagram section-padding" aria-labelledby="instagram-heading">
+  <div class="container">
+    <SectionHeading id="instagram-heading">Follow Along</SectionHeading>
+    {handle && <p class="instagram-handle reveal">{handle}</p>}
+    <div class="instagram-grid">
+      {validPhotos.map((photo, i) => (
+        <div class="instagram-item reveal" style={`--reveal-delay: ${i * 80}ms`}>
+          <img
+            src={photo.image}
+            alt={photo.caption || 'Instagram post'}
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="instagram-overlay">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+            </svg>
+          </div>
+        </div>
+      ))}
+    </div>
+    {url && (
+      <div class="instagram-cta reveal">
+        <a href={url} target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+          Follow on Instagram
+        </a>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .instagram-handle {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 1.0625rem;
+    margin-top: -1rem;
+    margin-bottom: 2rem;
+  }
+
+  .instagram-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .instagram-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .instagram-item {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+
+  .instagram-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .instagram-item:hover img {
+    transform: scale(1.06);
+  }
+
+  .instagram-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+  }
+
+  .instagram-item:hover .instagram-overlay {
+    opacity: 1;
+  }
+
+  .instagram-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  /* ═══ FADE ═══ */
+  :global([data-theme="fade"]) .instagram {
+    background-color: var(--color-bg-alt);
+  }
+
+  :global([data-theme="fade"]) .instagram-item {
+    border-radius: 0;
+  }
+
+  :global([data-theme="fade"]) .instagram-overlay {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  :global([data-theme="fade"]) .instagram-overlay svg {
+    color: var(--color-accent);
+  }
+
+  /* ═══ CLEAN ═══ */
+  :global([data-theme="clean"]) .instagram-item {
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  }
+
+  :global([data-theme="clean"]) .instagram-grid {
+    gap: 1rem;
+  }
+
+  /* ═══ CHOP ═══ */
+  :global([data-theme="chop"]) .instagram-item {
+    border-radius: 0;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  :global([data-theme="chop"]) .instagram-item:hover {
+    border-color: var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .instagram-item img {
+    filter: grayscale(80%);
+    transition: filter 0.4s ease, transform 0.4s ease;
+  }
+
+  :global([data-theme="chop"]) .instagram-item:hover img {
+    filter: grayscale(0%);
+  }
+
+  :global([data-theme="chop"]) .instagram-grid {
+    gap: 0.25rem;
+  }
+</style>

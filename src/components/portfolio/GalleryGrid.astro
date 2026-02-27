@@ -26,6 +26,7 @@ function getTitle(item: PortfolioItem): string {
   {items.map((item, index) => (
     <article
       class="gallery-item card reveal"
+      style={`--reveal-delay: ${index * 60}ms`}
       data-category={item.categoryTag || ''}
       data-index={index}
       role="listitem"
@@ -36,11 +37,12 @@ function getTitle(item: PortfolioItem): string {
         aria-label={`View ${getTitle(item)} in full size`}
         data-lightbox-open={index}
       >
-        <div class="gallery-image-wrapper">
+        <div class="gallery-image-wrapper image-skeleton">
           <img
             src={item.image}
             alt={getTitle(item)}
             loading="lazy"
+            decoding="async"
             class="gallery-image"
           />
           {item.beforeImage && (

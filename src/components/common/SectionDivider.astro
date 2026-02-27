@@ -1,0 +1,51 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<div class:list={['section-divider', className]} aria-hidden="true">
+  <div class="divider-inner"></div>
+</div>
+
+<style>
+  .section-divider {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .divider-inner {
+    width: 60px;
+    height: 2px;
+    background-color: var(--color-accent);
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+  }
+
+  /* ═══ FADE: thin gold line with subtle glow ═══ */
+  :global([data-theme="fade"]) .divider-inner {
+    width: 80px;
+    height: 1px;
+    opacity: 0.5;
+    box-shadow: 0 0 8px rgba(200, 160, 80, 0.2);
+  }
+
+  /* ═══ CLEAN: soft rounded bar ═══ */
+  :global([data-theme="clean"]) .divider-inner {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    opacity: 0.25;
+  }
+
+  /* ═══ CHOP: diagonal slash ═══ */
+  :global([data-theme="chop"]) .divider-inner {
+    width: 50px;
+    height: 4px;
+    transform: rotate(-12deg);
+    opacity: 0.6;
+  }
+</style>

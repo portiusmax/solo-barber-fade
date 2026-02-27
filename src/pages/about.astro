@@ -2,10 +2,12 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProfileSection from '@/components/about/ProfileSection.astro';
 import Specialties from '@/components/about/Specialties.astro';
+import FlipCard from '@/components/about/FlipCard.astro';
 import PersonalSection from '@/components/about/PersonalSection.astro';
-import { getAboutPage } from '@/lib/keystatic';
+import { getAboutPage, getSiteSettings } from '@/lib/keystatic';
 
 const aboutPage = await getAboutPage();
+const settings = await getSiteSettings();
 
 const bio = aboutPage?.bio ? await aboutPage.bio() : null;
 const certifications = aboutPage?.certifications ? await aboutPage.certifications() : null;
@@ -27,6 +29,17 @@ const personalText = aboutPage?.personalText ? await aboutPage.personalText() : 
     yearsExperience={aboutPage?.yearsExperience}
   />
 
+  <section class="meet-barber section-padding" aria-label="Meet your barber">
+    <div class="container meet-barber-wrapper">
+      <FlipCard
+        name={settings.siteTitle}
+        photo={aboutPage.profilePhoto}
+        yearsExperience={aboutPage.yearsExperience}
+        specialties={aboutPage.specialties}
+      />
+    </div>
+  </section>
+
   <PersonalSection
     heading={aboutPage?.personalHeading}
     text={personalText}
@@ -45,6 +58,11 @@ const personalText = aboutPage?.personalText ? await aboutPage.personalText() : 
 </BaseLayout>
 
 <style>
+  .meet-barber-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
   .about-cta {
     background-color: var(--color-accent);
     text-align: center;

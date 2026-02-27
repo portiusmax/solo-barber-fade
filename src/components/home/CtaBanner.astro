@@ -15,6 +15,11 @@ const {
 ---
 
 <section class="cta-banner section-padding" aria-label="Call to action">
+  <div class="cta-particles" aria-hidden="true">
+    {Array.from({ length: 12 }).map((_, i) => (
+      <span class="particle" style={`--x: ${10 + (i * 7.5) % 90}%; --y: ${10 + (i * 13) % 80}%; --size: ${2 + (i % 3) * 2}px; --dur: ${4 + (i % 4) * 2}s; --delay: ${(i * 0.4)}s;`}></span>
+    ))}
+  </div>
   <div class="cta-inner container reveal">
     {heading && <h2 class="cta-heading">{heading}</h2>}
     {text && <p class="cta-text">{text}</p>}
@@ -28,6 +33,12 @@ const {
   .cta-banner {
     background-color: var(--color-accent);
     text-align: center;
+    position: relative;
+  }
+
+  .cta-inner {
+    position: relative;
+    z-index: 1;
   }
 
   .cta-heading {
@@ -158,5 +169,62 @@ const {
     border-color: var(--color-accent);
     color: white;
     transform: none;
+  }
+
+  .cta-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .particle {
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    left: var(--x);
+    top: var(--y);
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    opacity: 0;
+    animation: particle-float var(--dur) var(--delay) infinite ease-in-out;
+  }
+
+  @keyframes particle-float {
+    0%, 100% {
+      opacity: 0;
+      transform: translateY(0) scale(0.5);
+    }
+    30% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.5;
+      transform: translateY(-25px) scale(1);
+    }
+    70% {
+      opacity: 0.3;
+    }
+  }
+
+  :global([data-theme="fade"]) .particle {
+    background-color: rgba(200, 160, 80, 0.5);
+  }
+
+  :global([data-theme="clean"]) .particle {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  :global([data-theme="chop"]) .particle {
+    background-color: rgba(43, 79, 255, 0.35);
+    border-radius: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .particle {
+      animation: none;
+      display: none;
+    }
   }
 </style>

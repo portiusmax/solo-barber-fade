@@ -69,6 +69,8 @@ const heroSrc = backgroundImage || themeHeroDefaults[theme] || themeHeroDefaults
     height: 100%;
     object-fit: cover;
     z-index: 0;
+    will-change: transform;
+    transform: scale(1.1);
   }
 
   .hero-overlay {
@@ -253,3 +255,28 @@ const heroSrc = backgroundImage || themeHeroDefaults[theme] || themeHeroDefaults
     transform: none;
   }
 </style>
+
+<script>
+  function initParallax() {
+    const heroBg = document.querySelector('.hero-bg');
+    const hero = document.querySelector('.hero');
+    if (!heroBg || !hero) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const theme = document.documentElement.getAttribute('data-theme');
+    const speed = theme === 'chop' ? 0.3 : theme === 'fade' ? 0.2 : 0.1;
+
+    const onScroll = () => {
+      const rect = hero.getBoundingClientRect();
+      if (rect.bottom < 0) return;
+      heroBg.style.transform = `scale(1.1) translateY(${window.scrollY * speed}px)`;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  initParallax();
+  document.addEventListener('astro:after-swap', initParallax);
+</script>

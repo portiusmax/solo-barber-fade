@@ -1,0 +1,268 @@
+---
+interface Props {
+  name: string;
+  photo?: string;
+  yearsExperience?: number;
+  specialties?: string[];
+}
+
+const { name, photo, yearsExperience, specialties = [] } = Astro.props;
+---
+
+<div class="flip-card reveal-scale" role="button" tabindex="0" aria-label={`Learn more about ${name}`}>
+  <div class="flip-card-inner">
+    <div class="flip-card-front">
+      {photo ? (
+        <img src={photo} alt={name} class="flip-photo" loading="lazy" decoding="async" />
+      ) : (
+        <div class="flip-photo-placeholder"></div>
+      )}
+      <div class="flip-front-overlay">
+        <span class="flip-name">{name}</span>
+        <span class="flip-hint">Tap to learn more</span>
+      </div>
+    </div>
+    <div class="flip-card-back">
+      <div class="flip-back-content">
+        {yearsExperience && (
+          <div class="flip-stat">
+            <span class="flip-stat-number">{yearsExperience}+</span>
+            <span class="flip-stat-label">Years of Experience</span>
+          </div>
+        )}
+        {specialties.length > 0 && (
+          <ul class="flip-specialties">
+            {specialties.slice(0, 5).map((s) => (
+              <li>{s}</li>
+            ))}
+          </ul>
+        )}
+        <a href="/booking" class="btn btn-primary flip-cta">Book a Cut</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .flip-card {
+    perspective: 1000px;
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 3 / 4;
+    cursor: pointer;
+    margin: 0 auto;
+  }
+
+  .flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  @media (hover: hover) {
+    .flip-card:hover .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+  }
+
+  .flip-card-front,
+  .flip-card-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .flip-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .flip-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg-alt);
+  }
+
+  .flip-front-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem 1.5rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .flip-name {
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: var(--heading-weight);
+    text-transform: var(--heading-transform);
+    letter-spacing: var(--heading-tracking);
+  }
+
+  .flip-hint {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.8125rem;
+  }
+
+  .flip-card-back {
+    transform: rotateY(180deg);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .flip-back-content {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .flip-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .flip-stat-number {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: var(--heading-weight);
+    color: var(--color-accent);
+    line-height: 1;
+  }
+
+  .flip-stat-label {
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .flip-specialties {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .flip-specialties li {
+    font-size: 0.8125rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-text-muted);
+  }
+
+  .flip-cta {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    padding: 0.625rem 1.5rem;
+  }
+
+  /* ═══ FADE ═══ */
+  :global([data-theme="fade"]) .flip-card-back {
+    background-color: #111;
+    border-color: var(--color-accent);
+  }
+
+  :global([data-theme="fade"]) .flip-specialties li {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  /* ═══ CLEAN ═══ */
+  :global([data-theme="clean"]) .flip-card-front,
+  :global([data-theme="clean"]) .flip-card-back {
+    border-radius: 1.5rem;
+  }
+
+  :global([data-theme="clean"]) .flip-card-back {
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  }
+
+  :global([data-theme="clean"]) .flip-specialties li {
+    border-radius: 999px;
+    background-color: var(--color-bg-alt);
+    border: none;
+  }
+
+  /* ═══ CHOP ═══ */
+  :global([data-theme="chop"]) .flip-card-front,
+  :global([data-theme="chop"]) .flip-card-back {
+    border-radius: 0;
+  }
+
+  :global([data-theme="chop"]) .flip-card-back {
+    background-color: #0a0a0a;
+    border: 2px solid var(--color-accent);
+  }
+
+  :global([data-theme="chop"]) .flip-stat-number {
+    font-size: 3rem;
+  }
+
+  :global([data-theme="chop"]) .flip-specialties li {
+    border: 2px solid var(--color-accent);
+    color: var(--color-accent);
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+  }
+
+  :global([data-theme="chop"]) .flip-name {
+    letter-spacing: -0.02em;
+  }
+
+  :global([data-theme="chop"]) .flip-back-content {
+    color: white;
+  }
+
+  :global([data-theme="chop"]) .flip-stat-label {
+    color: rgba(255,255,255,0.6);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flip-card-inner {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initFlipCards() {
+    document.querySelectorAll('.flip-card').forEach((card) => {
+      card.addEventListener('click', () => card.classList.toggle('flipped'));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.classList.toggle('flipped');
+        }
+      });
+    });
+  }
+
+  initFlipCards();
+  document.addEventListener('astro:after-swap', initFlipCards);
+</script>

@@ -270,6 +270,79 @@
     transform: translateY(0);
   }
 
+  /* Direction-based reveal variants */
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .reveal-left.visible,
+  .reveal-right.visible,
+  .reveal-scale.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Stagger delay via CSS custom property */
+  .reveal, .reveal-left, .reveal-right, .reveal-scale {
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal-left, .reveal-right, .reveal-scale {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Skeleton loading shimmer */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .image-skeleton {
+    position: relative;
+    background-color: var(--color-bg-alt);
+    overflow: hidden;
+  }
+
+  .image-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 25%,
+      var(--color-border) 50%,
+      transparent 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    transition: opacity 0.4s ease;
+    z-index: 1;
+  }
+
+  .image-skeleton.loaded::after {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   /* Star rating display */
   .stars {
     display: inline-flex;
@@ -410,4 +483,96 @@
   background-color: var(--color-heading);
   border-color: var(--color-heading);
   color: white;
+}
+
+/* Image skeleton load handler - applied via JS */
+
+/* ─── Custom Cursor (Desktop Only) ─── */
+@media (pointer: fine) {
+  .custom-cursor {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+  }
+
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    position: absolute;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s ease, height 0.2s ease;
+  }
+
+  .cursor-ring {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--color-accent);
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    opacity: 0.4;
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+  }
+
+  .custom-cursor.hovering .cursor-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .custom-cursor.hovering .cursor-ring {
+    width: 44px;
+    height: 44px;
+    opacity: 0.25;
+  }
+
+  body.has-custom-cursor {
+    cursor: none;
+  }
+
+  body.has-custom-cursor a,
+  body.has-custom-cursor button,
+  body.has-custom-cursor [role="button"],
+  body.has-custom-cursor input,
+  body.has-custom-cursor textarea,
+  body.has-custom-cursor select {
+    cursor: none;
+  }
+
+  /* Chop: crosshair style */
+  [data-theme="chop"] .cursor-dot {
+    border-radius: 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  [data-theme="chop"] .cursor-ring {
+    border-radius: 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  /* Clean: no ring, just dot */
+  [data-theme="clean"] .cursor-ring {
+    display: none;
+  }
+
+  [data-theme="clean"] .cursor-dot {
+    width: 10px;
+    height: 10px;
+    opacity: 0.7;
+  }
+
+  [data-theme="clean"] .custom-cursor.hovering .cursor-dot {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+  }
+}
+
+@media (pointer: coarse) {
+  .custom-cursor {
+    display: none !important;
+  }
 }

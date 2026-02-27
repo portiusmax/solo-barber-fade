@@ -27,11 +27,11 @@ function getServiceName(service: Service): string {
   <div class="container">
     <SectionHeading id="services-heading">{heading}</SectionHeading>
     <div class="services-grid">
-      {services.map((service) => (
-        <div class="service-card card reveal">
+      {services.map((service, i) => (
+        <div class="service-card card reveal" style={`--reveal-delay: ${i * 100}ms`}>
           {service.image && (
-            <div class="service-image">
-              <img src={service.image} alt={getServiceName(service)} loading="lazy" />
+            <div class="service-image image-skeleton">
+              <img src={service.image} alt={getServiceName(service)} loading="lazy" decoding="async" />
             </div>
           )}
           <div class="service-info">

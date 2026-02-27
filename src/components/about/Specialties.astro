@@ -25,7 +25,7 @@ const hasContent = specialties.length > 0;
 
       <div class="specialties-grid reveal">
         {specialties.map((specialty, index) => (
-          <div class="specialty-tag" style={`--tag-index: ${index}`}>
+          <div class="specialty-tag reveal-scale" style={`--tag-index: ${index}; --reveal-delay: ${index * 80}ms`}>
             <svg
               class="tag-icon"
               width="16"
